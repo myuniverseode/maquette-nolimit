@@ -175,23 +175,7 @@ export function ParkActualitesSection({ parkId, articles, parkImage }: Props) {
           ))}
         </div>
 
-        {/* Bouton voir toutes */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="text-center mt-12"
-        >
-          <Link
-            to={`/parks/${parkId}/actualites`}
-            className="inline-flex items-center gap-3 px-8 py-4 rounded-xl font-bold text-white transition-all hover:shadow-xl hover:gap-4"
-            style={{ backgroundColor: GREEN }}
-          >
-            Voir toutes les actualités
-            <ArrowRight className="size-5" />
-          </Link>
-        </motion.div>
+       
       </div>
     </section>
   );

@@ -126,58 +126,7 @@ export function ParkOnePage() {
               </div>
             </motion.section>
 
-            {/* ── TARIFS (remontés) ── */}
-            <section id="tarifs" className="relative">
-              <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-10">
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-4 text-sm font-medium border" style={{ backgroundColor: `${GREEN}10`, borderColor: `${GREEN}30`, color: GREEN }}>
-                  <Gift className="size-4" /> Tarifs transparents
-                </div>
-                <h2 className="text-3xl md:text-4xl font-black mb-2" style={{ color: DARK }}>
-                  Nos <span style={{ color: GREEN }}>tarifs</span>
-                </h2>
-                <p className="text-gray-600">Des formules adaptées à tous vos besoins</p>
-              </motion.div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-                {pricingOptions.map((option, idx) => (
-                  <motion.div key={idx} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: idx * 0.15, type: 'spring' }} whileHover={{ y: -8, scale: 1.02 }} className="relative group">
-                    {option.popular && (
-                      <motion.div initial={{ scale: 0 }} whileInView={{ scale: 1 }} viewport={{ once: true }} transition={{ type: 'spring', delay: 0.4 }} className="absolute -top-4 left-1/2 -translate-x-1/2 z-10 px-4 py-1.5 rounded-full text-xs font-bold text-white shadow-lg" style={{ background: `linear-gradient(to right, ${ORANGE}, #d66310)` }}>
-                        <Sparkles className="size-3 inline mr-1" /> Le plus populaire
-                      </motion.div>
-                    )}
-                    <div className={`relative bg-white rounded-2xl p-6 shadow-lg transition-all ${option.popular ? 'ring-2' : 'border border-gray-100'}`} style={option.popular ? { borderColor: ORANGE } : {}}>
-                      <div className="text-center mb-4">
-                        <motion.div whileHover={{ scale: 1.2, rotate: 10 }} className="text-4xl mb-3">{option.icon}</motion.div>
-                        <h3 className="text-xl font-black mb-1" style={{ color: DARK }}>{option.name}</h3>
-                        <p className="text-gray-600 text-xs">{option.description}</p>
-                      </div>
-                      <div className="text-center mb-4 py-3 rounded-xl" style={{ backgroundColor: `${option.color}08` }}>
-                        <div className="text-3xl font-black mb-0.5" style={{ color: option.color }}>
-                          {typeof option.price === 'number' ? `${option.price}€` : option.price}
-                        </div>
-                        {typeof option.price === 'number' && <div className="text-gray-500 text-[10px] font-medium">par personne</div>}
-                      </div>
-                      <ul className="space-y-2 mb-4">
-                        {option.features.slice(0, 3).map((f, fi) => (
-                          <li key={fi} className="flex items-center gap-2 text-xs">
-                            <div className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: `${option.color}20` }}>
-                              <CheckCircle className="size-2.5" style={{ color: option.color }} />
-                            </div>
-                            <span className="text-gray-700">{f}</span>
-                          </li>
-                        ))}
-                      </ul>
-                      <Link to="/booking" state={{ parkId: park.id }}>
-                        <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className={`w-full py-2.5 rounded-lg font-bold text-sm transition-all flex items-center justify-center gap-2 ${option.popular ? 'text-white shadow-md' : 'bg-gray-100 text-gray-900 hover:bg-gray-200'}`} style={option.popular ? { background: `linear-gradient(to right, ${ORANGE}, #d66310)` } : {}}>
-                          Réserver <ArrowRight className="size-3.5" />
-                        </motion.button>
-                      </Link>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </section>
+         
 
             {/* ── INFOS PRATIQUES UNIFIÉES ── */}
             <section id="infos" className="relative">
@@ -383,6 +332,59 @@ export function ParkOnePage() {
           </div>
         </div>
       </section>
+
+         {/* ── TARIFS (remontés) ── */}
+            <section id="tarifs" className="relative py-20">
+              <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-10">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-4 text-sm font-medium border mt-8" style={{ backgroundColor: `${GREEN}10`, borderColor: `${GREEN}30`, color: GREEN }}>
+                  <Gift className="size-4" /> Tarifs transparents
+                </div>
+                <h2 className="text-3xl md:text-4xl font-black mb-2" style={{ color: DARK }}>
+                  Nos <span style={{ color: GREEN }}>tarifs</span>
+                </h2>
+                <p className="text-gray-600">Des formules adaptées à tous vos besoins</p>
+              </motion.div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+                {pricingOptions.map((option, idx) => (
+                  <motion.div key={idx} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: idx * 0.15, type: 'spring' }} whileHover={{ y: -8, scale: 1.02 }} className="relative group">
+                    {option.popular && (
+                      <motion.div initial={{ scale: 0 }} whileInView={{ scale: 1 }} viewport={{ once: true }} transition={{ type: 'spring', delay: 0.4 }} className="absolute -top-4 left-1/2 -translate-x-1/2 z-10 px-4 py-1.5 rounded-full text-xs font-bold text-white shadow-lg" style={{ background: `linear-gradient(to right, ${ORANGE}, #d66310)` }}>
+                        <Sparkles className="size-3 inline mr-1" /> Le plus populaire
+                      </motion.div>
+                    )}
+                    <div className={`relative bg-white rounded-2xl p-6 shadow-lg transition-all ${option.popular ? 'ring-2' : 'border border-gray-100'}`} style={option.popular ? { borderColor: ORANGE } : {}}>
+                      <div className="text-center mb-4">
+                        <motion.div whileHover={{ scale: 1.2, rotate: 10 }} className="text-4xl mb-3">{option.icon}</motion.div>
+                        <h3 className="text-xl font-black mb-1" style={{ color: DARK }}>{option.name}</h3>
+                        <p className="text-gray-600 text-xs">{option.description}</p>
+                      </div>
+                      <div className="text-center mb-4 py-3 rounded-xl" style={{ backgroundColor: `${option.color}08` }}>
+                        <div className="text-3xl font-black mb-0.5" style={{ color: option.color }}>
+                          {typeof option.price === 'number' ? `${option.price}€` : option.price}
+                        </div>
+                        {typeof option.price === 'number' && <div className="text-gray-500 text-[10px] font-medium">par personne</div>}
+                      </div>
+                      <ul className="space-y-2 mb-4">
+                        {option.features.slice(0, 3).map((f, fi) => (
+                          <li key={fi} className="flex items-center gap-2 text-xs">
+                            <div className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: `${option.color}20` }}>
+                              <CheckCircle className="size-2.5" style={{ color: option.color }} />
+                            </div>
+                            <span className="text-gray-700">{f}</span>
+                          </li>
+                        ))}
+                      </ul>
+                      <Link to="/booking" state={{ parkId: park.id }}>
+                        <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className={`w-full py-2.5 rounded-lg font-bold text-sm transition-all flex items-center justify-center gap-2 ${option.popular ? 'text-white shadow-md' : 'bg-gray-100 text-gray-900 hover:bg-gray-200'}`} style={option.popular ? { background: `linear-gradient(to right, ${ORANGE}, #d66310)` } : {}}>
+                          Réserver <ArrowRight className="size-3.5" />
+                        </motion.button>
+                      </Link>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </section>
 
       {/* ════ BON À SAVOIR (simplifié) ════ */}
       <section className="relative py-16 overflow-hidden" style={{ backgroundColor: DARK }}>
