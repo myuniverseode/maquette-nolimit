@@ -5,12 +5,38 @@ import { Link } from 'react-router-dom';
 import {
   Calendar, Phone, Mail, ArrowRight,
   PartyPopper, PanelRightClose, PanelRightOpen,
+  Star,
 } from 'lucide-react';
 import { ParkStatusBadge } from './ParkStatusBadge';
-import { socialLinks } from './ParkHero';
+import { 
+  FaFacebookF, 
+  FaInstagram, 
+  FaTiktok, 
+  FaLinkedinIn, 
+  FaYoutube,
+  FaGoogle,
+  FaTripadvisor
+} from 'react-icons/fa';
+
 
 const GREEN  = '#357600';
 const ORANGE = '#eb700f';
+
+// Réseaux sociaux - 1 ligne avec icônes officielles
+const socialLinks = [
+  { icon: FaFacebookF, label: 'Facebook', handle: '@nolimitparc', color: '#1877F2' },
+  { icon: FaInstagram, label: 'Instagram', handle: '@nolimitparc', color: '#E4405F' },
+  { icon: FaTiktok, label: 'TikTok', handle: '@nolimitparc', color: '#000000' },
+  { icon: FaLinkedinIn, label: 'LinkedIn', handle: 'NoLimit', color: '#0A66C2' },
+  { icon: FaYoutube, label: 'YouTube', handle: 'NoLimit', color: '#FF0000' },
+];
+
+// Sites d'avis - 1 ligne avec icônes officielles
+const reviewLinks = [
+  { icon: FaGoogle, label: 'Google', handle: '4.5 ★', color: '#4285F4' },
+  { icon: FaTripadvisor, label: 'Tripadvisor', handle: '4.5 ★', color: '#00AF87' },
+
+];
 
 export function ParkSidebar({ park }: { park: any }) {
   const [collapsed, setCollapsed]   = useState(false);
@@ -121,18 +147,16 @@ export function ParkSidebar({ park }: { park: any }) {
             className="overflow-y-auto space-y-4 pr-1 pb-6"
             style={{ maxHeight, scrollbarWidth: 'thin' }}
           >
-            {/* Bloc statut + réservation */}
+            {/* Bloc statut + réservation - SANS "État du parc" */}
             <motion.div
               variants={itemVariants}
               className="rounded-2xl overflow-hidden shadow-xl border border-gray-100 bg-white"
             >
               <div className="h-1" style={{ background: `linear-gradient(to right, ${GREEN}, ${ORANGE})` }} />
               <div className="p-6">
-                <div className="mb-6">
-                  <div className="text-xs text-gray-400 font-medium mb-2 text-center">État du parc</div>
-                  <div className="flex justify-center">
-                    <ParkStatusBadge parkSlug={park.id} size="lg" />
-                  </div>
+                {/* Status badge seulement, sans le texte "État du parc" */}
+                <div className="flex justify-center mb-6">
+                  <ParkStatusBadge parkSlug={park.id} size="lg" />
                 </div>
 
                 <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} className="mb-2">
@@ -177,7 +201,7 @@ export function ParkSidebar({ park }: { park: any }) {
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: `${GREEN}15` }}>
                   <Phone className="size-4 group-hover:scale-110 transition-transform" style={{ color: GREEN }} />
                 </div>
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <div className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-0.5">Téléphone</div>
                   <div className="font-black text-gray-900 text-sm truncate">{park.phone ?? '01 23 45 67 89'}</div>
                 </div>
@@ -190,7 +214,7 @@ export function ParkSidebar({ park }: { park: any }) {
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: `${ORANGE}15` }}>
                   <Mail className="size-4 group-hover:scale-110 transition-transform" style={{ color: ORANGE }} />
                 </div>
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <div className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-0.5">Email</div>
                   <div className="font-black text-gray-900 text-sm truncate">{park.email ?? 'contact@nolimit.fr'}</div>
                 </div>
@@ -198,25 +222,49 @@ export function ParkSidebar({ park }: { park: any }) {
               </a>
             </motion.div>
 
-            {/* Réseaux sociaux */}
+            {/* Réseaux sociaux - 1 ligne avec icônes officielles */}
             <motion.div
               variants={itemVariants}
               className="rounded-2xl overflow-hidden border border-gray-100 bg-white shadow-sm p-4"
             >
               <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-3">Suivez-nous</div>
-              <div className="grid grid-cols-2 gap-2">
-                {socialLinks.map(({ icon, label, handle }) => (
+              <div className="grid grid-cols-5 gap-1">
+                {socialLinks.map(({ icon: Icon, label, handle, color }) => (
                   <motion.a
                     key={label}
                     href="#"
-                    whileHover={{ y: -2, scale: 1.03 }}
-                    className="flex items-center gap-2 px-3 py-2 rounded-xl border border-gray-100 hover:border-gray-200 hover:shadow-sm transition-all"
+                    whileHover={{ y: -2 }}
+                    className="flex flex-col items-center justify-center p-2 rounded-xl hover:bg-gray-50 transition-all group"
+                    title={label}
                   >
-                    <span className="text-base">{icon}</span>
-                    <div className="min-w-0">
-                      <div className="text-xs font-black text-gray-700 leading-tight">{label}</div>
-                      <div className="text-[10px] text-gray-400 truncate">{handle}</div>
+                    <div className="w-7 h-7 rounded-full flex items-center justify-center mb-1 transition-transform group-hover:scale-110" style={{ backgroundColor: `${color}15` }}>
+                      <Icon className="text-sm" style={{ color }} />
                     </div>
+                    <span className="text-[8px] font-medium text-gray-500 text-center truncate w-full">{handle}</span>
+                  </motion.a>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Avis - 1 ligne avec icônes officielles */}
+            <motion.div
+              variants={itemVariants}
+              className="rounded-2xl overflow-hidden border border-gray-100 bg-white shadow-sm p-4"
+            >
+              <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-3">Laissez-nous un avis</div>
+              <div className="grid grid-cols-3 gap-1">
+                {reviewLinks.map(({ icon: Icon, label, handle, color }) => (
+                  <motion.a
+                    key={label}
+                    href="#"
+                    whileHover={{ y: -2 }}
+                    className="flex flex-col items-center justify-center p-2 rounded-xl hover:bg-gray-50 transition-all group"
+                    title={label}
+                  >
+                    <div className="w-7 h-7 rounded-full flex items-center justify-center mb-1 transition-transform group-hover:scale-110" style={{ backgroundColor: `${color}15` }}>
+                      <Icon className="text-sm" style={{ color }} />
+                    </div>
+                    <span className="text-[8px] font-medium text-gray-500 text-center truncate w-full">{handle}</span>
                   </motion.a>
                 ))}
               </div>

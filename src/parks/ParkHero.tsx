@@ -3,11 +3,17 @@ import { useState, useEffect } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { MapPin, Play } from 'lucide-react';
 import { useRef } from 'react';
+import { 
+  FaInstagram, 
+  FaFacebookF, 
+  FaTiktok, 
+  FaYoutube 
+} from 'react-icons/fa';
 
 const ORANGE = '#eb700f';
 
 interface SocialLink {
-  icon: string;
+  icon: React.ElementType;
   label: string;
   color: string;
   url: string;
@@ -19,10 +25,34 @@ interface ParkHeroProps {
 }
 
 const socialLinks: SocialLink[] = [
-  { icon: '📸', label: 'Instagram', color: '#e1306c', url: '#', handle: '@nolimit_parc' },
-  { icon: '👥', label: 'Facebook',  color: '#1877f2', url: '#', handle: 'NoLimit Parc'  },
-  { icon: '🎵', label: 'TikTok',    color: '#010101', url: '#', handle: '@nolimit'       },
-  { icon: '▶️', label: 'YouTube',   color: '#ff0000', url: '#', handle: 'NoLimit TV'     },
+  { 
+    icon: FaInstagram, 
+    label: 'Instagram', 
+    color: '#e1306c', 
+    url: '#', 
+    handle: '@nolimit_parc' 
+  },
+  { 
+    icon: FaFacebookF, 
+    label: 'Facebook',  
+    color: '#1877f2', 
+    url: '#', 
+    handle: 'NoLimit Parc'  
+  },
+  { 
+    icon: FaTiktok, 
+    label: 'TikTok',    
+    color: '#010101', 
+    url: '#', 
+    handle: '@nolimit'       
+  },
+  { 
+    icon: FaYoutube, 
+    label: 'YouTube',   
+    color: '#ff0000', 
+    url: '#', 
+    handle: 'NoLimit TV'     
+  },
 ];
 
 export function ParkHero({ park }: ParkHeroProps) {
@@ -67,22 +97,25 @@ export function ParkHero({ park }: ParkHeroProps) {
           <span className="text-base font-medium tracking-wide">{park.location}</span>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          {socialLinks.map((social) => (
-            <motion.a
-              key={social.label}
-              href={social.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              whileHover={{ scale: 1.1, y: -2 }}
-              whileTap={{ scale: 0.95 }}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold backdrop-blur-sm border border-white/30 text-white transition-all"
-              style={{ backgroundColor: `${social.color}CC` }}
-              title={social.handle}
-            >
-              <span>{social.icon}</span>
-              <span className="hidden sm:inline">{social.handle}</span>
-            </motion.a>
-          ))}
+          {socialLinks.map((social) => {
+            const IconComponent = social.icon;
+            return (
+              <motion.a
+                key={social.label}
+                href={social.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                whileHover={{ scale: 1.1, y: -2 }}
+                whileTap={{ scale: 0.95 }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold backdrop-blur-sm border border-white/30 text-white transition-all"
+                style={{ backgroundColor: `${social.color}CC` }}
+                title={social.handle}
+              >
+                <IconComponent className="text-sm" />
+                <span className="hidden sm:inline">{social.handle}</span>
+              </motion.a>
+            );
+          })}
         </div>
       </motion.div>
 

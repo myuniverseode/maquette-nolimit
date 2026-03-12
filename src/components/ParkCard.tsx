@@ -32,27 +32,12 @@ const getActivityIcon = (activity: string): string => {
   return iconMap[activity] || '🎯';
 };
 
-const getParkEmoji = (park: Park): string => {
-  const { name, location } = park;
-  const locationLower = location.toLowerCase();
-  const nameLower = name.toLowerCase();
-  
-  if (locationLower.includes('savoie') || locationLower.includes('mont')) return '⛰️';
-  if (locationLower.includes('forêt') || locationLower.includes('bois')) return '🌲';
-  if (locationLower.includes('lac')) return '🏞️';
-  if (locationLower.includes('rivière')) return '🌊';
-  if (locationLower.includes('vallée')) return '🏔️';
-  
-  if (nameLower.includes('forest') || nameLower.includes('wood')) return '🌲';
-  if (nameLower.includes('mountain')) return '⛰️';
-  if (nameLower.includes('lake')) return '🏞️';
-  if (nameLower.includes('river')) return '🌊';
-  if (nameLower.includes('adventure')) return '⚡';
-  if (nameLower.includes('extreme')) return '🔥';
-  if (nameLower.includes('nature')) return '🍃';
-  
-  const fallbackEmojis = ['🌳', '🏞️', '⛰️', '🌊', '🏔️', '🧗', '⚡', '🍃', '🔥', '🌲'];
-  return fallbackEmojis[park.id.charCodeAt(0) % fallbackEmojis.length];
+const cleanParkName = (name: string): string => {
+  // Supprime "NoLimit", "No Limit", "Nolimit" etc du nom
+  return name
+    .replace(/No[\s-]*limit/i, '')
+    .replace(/Nolimit/i, '')
+    .trim();
 };
 
 // Hook pour détecter le touch device
@@ -85,7 +70,7 @@ export function ParkCard({
   const navigate = useNavigate();
   const cardRef = useRef<HTMLDivElement>(null);
   
-  const parkEmoji = getParkEmoji(park);
+  const cleanName = cleanParkName(park.name);
   const cityName = park.location.split(',')[0]?.trim() || park.location;
   const minAge = park.minAge || 8;
   const parkUrl = `/parks/${park.id}`;
@@ -194,30 +179,17 @@ export function ParkCard({
             className="absolute top-8 left-8 w-24 h-24 bg-white/20 rounded-full blur-2xl"
           />
 
-          {/* Contenu bulle */}
+          {/* Contenu bulle - SANS EMOJI */}
           <div className="relative z-10 text-center px-6 space-y-4">
-            {/* Emoji */}
-            <motion.div 
-              className="text-8xl mb-2"
-              animate={isExpanded ? {
-                scale: 1.15,
-              } : {
-                scale: 1
-              }}
-              transition={{ duration: 0.3, ease: "easeOut" }}
-            >
-              {parkEmoji}
-            </motion.div>
-            
-            {/* Nom */}
+            {/* Nom uniquement */}
             <motion.h3 
-              className="text-white font-black text-2xl leading-tight"
+              className="text-white font-black text-3xl leading-tight"
               style={{ 
                 textShadow: '0 2px 10px rgba(0,0,0,0.5)' 
               }}
               animate={isExpanded ? { scale: 0.9 } : { scale: 1 }}
             >
-              {park.name.length > 25 ? park.name.substring(0, 25) + '...' : park.name}
+              {cleanName}
             </motion.h3>
             
             {/* Stats */}
@@ -232,15 +204,13 @@ export function ParkCard({
               }}
             >
               <div className="flex items-center gap-1 bg-white/30 backdrop-blur px-3 py-2 rounded-full">
-                
                 <span className="text-white text-sm font-black">{park.departement}</span>
               </div>
-           
             </motion.div>
             
-            {/* Prix */}
+            {/* Note uniquement (remplace le prix) */}
             <motion.div 
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-white font-black text-xl shadow-lg"
+              className="inline-flex items-center gap-1 px-6 py-3 rounded-full text-white font-black text-xl shadow-lg"
               style={{ 
                 background: secondaryColor
               }}
@@ -252,7 +222,8 @@ export function ParkCard({
                 opacity: 1
               }}
             >
-              {park.minPrice}€
+              <Star className="size-5 fill-white text-white mr-1" />
+              {park.rating}/5
             </motion.div>
           </div>
         </motion.div>
@@ -331,7 +302,7 @@ export function ParkCard({
                 </div>
               </motion.div>
 
-              {/* Info 4 : Prix détails (en bas) */}
+              {/* Info 4 : Note détaillée (en bas) - remplace le prix */}
               <motion.div
                 initial={{ opacity: 0, y: -10, scale: 0.8 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -346,10 +317,11 @@ export function ParkCard({
               >
                 <div className="flex items-center gap-4">
                   <div className="text-center">
-                    <div className="text-3xl font-black" style={{ color: secondaryColor }}>
-                      {park.minPrice}€
+                    <div className="text-3xl font-black flex items-center gap-1" style={{ color: secondaryColor }}>
+                      <Star className="size-6 fill-current" />
+                      {park.rating}
                     </div>
-                    <div className="text-xs text-gray-600 font-bold">à partir de</div>
+                    <div className="text-xs text-gray-600 font-bold">note moyenne</div>
                   </div>
                   <div className="h-12 w-px bg-gray-300" />
                   <div className="text-xs text-gray-600 font-semibold">
@@ -358,8 +330,8 @@ export function ParkCard({
                       <span>Durée : 2h</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <TrendingUp className="size-3" />
-                      <span>Note : {park.rating}/5</span>
+                      <Users className="size-3" />
+                      <span>{minAge}+ ans</span>
                     </div>
                   </div>
                 </div>
@@ -417,7 +389,7 @@ export function ParkCard({
 
             <div className="absolute bottom-6 left-6 right-6">
               <h3 className="text-3xl font-black text-white mb-2">
-                {park.name}
+                {cleanName}
               </h3>
               <div className="flex items-center gap-2 text-white mb-4">
                 <MapPin className="size-5" />
@@ -427,7 +399,8 @@ export function ParkCard({
                 className="inline-flex items-center gap-2 px-5 py-2 rounded-full"
                 style={{ backgroundColor: secondaryColor }}
               >
-                <span className="text-white font-black text-lg">Dès {park.minPrice}€</span>
+                <Star className="size-4 text-white" />
+                <span className="text-white font-black text-lg">{park.rating}/5</span>
               </div>
             </div>
           </div>

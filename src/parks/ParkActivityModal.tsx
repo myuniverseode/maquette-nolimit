@@ -2,8 +2,8 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Star, Calendar, Clock, CheckCircle, ArrowRight, Info } from 'lucide-react';
-import { activities } from '../../data/activities';
+import { Star, Calendar, Clock, CheckCircle, ArrowRight, Info, ChevronDown, Ticket, PartyPopper } from 'lucide-react';
+import { activities } from '../data/activities';
 
 const GREEN  = '#357600';
 const ORANGE = '#eb700f';
@@ -24,6 +24,25 @@ const mockReviews = [
   { name: 'Léa D.',    rating: 4, date: 'Oct 2024', comment: 'Super journée, accessible même pour les débutants. Je recommande vivement.',        avatar: '🌟' },
 ];
 
+const faqItems = [
+  {
+    question: "Faut-il être en bonne condition physique ?",
+    answer: "Notre activité est accessible à tous les niveaux. Les parcours sont adaptables selon votre forme du moment. Nos moniteurs vous guideront pour choisir le parcours le plus adapté."
+  },
+  {
+    question: "Est-ce que le matériel est fourni ?",
+    answer: "Oui, tout l'équipement de sécurité est fourni : casque, harnais, longes, etc. Nous vous fournissons également des gants. Seule une tenue sportive et des chaussures fermées sont nécessaires."
+  },
+  {
+    question: "Peut-on venir avec des enfants ?",
+    answer: "Absolument ! L'activité est accessible dès 8 ans. Des parcours spécialement conçus pour les enfants sont disponibles, avec un encadrement renforcé."
+  },
+  {
+    question: "Que se passe-t-il en cas de mauvais temps ?",
+    answer: "L'activité peut être suspendue par sécurité en cas d'orage ou de vents violents. Vous serez remboursé intégralement ou pourrez reporter votre session."
+  }
+];
+
 interface Props {
   activity: Activity;
   park: any;
@@ -33,9 +52,10 @@ interface Props {
 }
 
 export function ParkActivityModal({ activity, park, allActivities, onClose, onNavigate }: Props) {
-  const [activeTab, setActiveTab] = useState<'infos' | 'inclus' | 'avis'>('infos');
+  const [activeTab, setActiveTab] = useState<'infos' | 'inclus' | 'avis' | 'faq'>('infos');
   const [imgIndex,  setImgIndex]  = useState(0);
   const [liked,     setLiked]     = useState(false);
+  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
 
   const diff   = difficultyMap[activity.difficulty] ?? { pct: 50, color: GREEN, label: '' };
   const others = allActivities.filter(a => a.id !== activity.id).slice(0, 3);
@@ -45,6 +65,7 @@ export function ParkActivityModal({ activity, park, allActivities, onClose, onNa
     { key: 'infos',  label: '📋 Infos'                    },
     { key: 'inclus', label: '✅ Inclus'                   },
     { key: 'avis',   label: `⭐ Avis (${mockReviews.length})` },
+    { key: 'faq',    label: '❓ FAQ'                      },
   ] as const;
 
   const handleClose = (e?: React.MouseEvent) => { e?.stopPropagation(); onClose(); };
@@ -71,21 +92,14 @@ export function ParkActivityModal({ activity, park, allActivities, onClose, onNa
         <div className="flex flex-col lg:flex-row flex-1 min-h-0">
 
           {/* ── Colonne image ── */}
-          <div className="lg:w-[42%] lg:flex-shrink-0 flex flex-col">
+          {/* Sur mobile : pas d'images (hidden) */}
+          <div className="hidden lg:block lg:w-[42%] lg:flex-shrink-0 flex-col">
             <div className="relative h-56 sm:h-72 lg:h-full overflow-hidden bg-gray-900">
               {imgs.map((src, i) => (
                 <motion.img key={i} src={src} alt={`${activity.name} ${i + 1}`} className="absolute inset-0 w-full h-full object-cover" initial={{ opacity: 0 }} animate={{ opacity: i === imgIndex ? 1 : 0 }} transition={{ duration: 0.5 }} />
               ))}
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/10 to-black/30" />
               <div className="absolute top-3 left-1/2 -translate-x-1/2 w-12 h-1.5 rounded-full bg-white/40 lg:hidden" />
-
-              {/* Fermer */}
-              <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={handleClose} className="absolute top-4 right-4 w-10 h-10 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center text-white font-bold text-lg z-20 hover:bg-black/70 transition-colors">✕</motion.button>
-
-              {/* Like */}
-              <motion.button whileHover={{ scale: 1.15 }} whileTap={{ scale: 0.85 }} onClick={(e) => { e.stopPropagation(); setLiked(l => !l); }} className="absolute top-4 left-4 w-10 h-10 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center z-20 text-xl hover:bg-black/70 transition-colors" animate={{ scale: liked ? [1, 1.4, 1] : 1 }}>
-                {liked ? '❤️' : '🤍'}
-              </motion.button>
 
               {/* Miniatures */}
               <div className="absolute bottom-4 left-4 flex gap-2 z-20">
@@ -133,7 +147,42 @@ export function ParkActivityModal({ activity, park, allActivities, onClose, onNa
 
           {/* ── Colonne contenu ── */}
           <div className="flex-1 flex flex-col min-h-0">
-            <div className="p-6 pb-0 border-b border-gray-100">
+            {/* Header mobile sans images */}
+            <div className="lg:hidden pt-6 px-6 pb-0">
+              <div className="flex items-start justify-between gap-3 mb-3">
+                <div className="flex-1">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-2xl font-black leading-tight" style={{ color: DARK }}>{activity.name}</h2>
+                    <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={handleClose} className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 font-bold text-lg hover:bg-gray-200 transition-colors">✕</motion.button>
+                  </div>
+                  <div className="flex items-center gap-2 mt-2">
+                    <div className="flex">
+                      {[1,2,3,4,5].map(s => (
+                        <Star key={s} className={`size-4 ${s <= 4 ? 'fill-yellow-400 text-yellow-400' : 'fill-gray-200 text-gray-200'}`} />
+                      ))}
+                    </div>
+                    <span className="text-sm font-bold text-gray-900">4.8</span>
+                    <span className="text-sm text-gray-400">({mockReviews.length} avis)</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Badges mobiles */}
+              <div className="flex flex-wrap gap-2 mb-4">
+                <span className="px-3 py-1 bg-gray-100 rounded-full text-xs font-bold text-gray-700 flex items-center gap-1">
+                  <span className="text-base">🎯</span>{activity.difficulty}
+                </span>
+                <span className="px-3 py-1 rounded-full text-xs font-bold text-white flex items-center gap-1" style={{ backgroundColor: GREEN }}>
+                  <span className="text-base">👥</span>{activity.minAge}+ ans
+                </span>
+                <span className="px-3 py-1 bg-gray-100 rounded-full text-xs font-bold text-gray-700 flex items-center gap-1">
+                  <Clock className="size-3" />{(activity as any).duration ?? '2h'}
+                </span>
+              </div>
+            </div>
+
+            {/* Desktop header */}
+            <div className="hidden lg:block p-6 pb-0 border-b border-gray-100">
               <div className="flex items-start justify-between gap-3 mb-3">
                 <div>
                   <h2 className="text-2xl lg:text-3xl font-black leading-tight" style={{ color: DARK }}>{activity.name}</h2>
@@ -147,24 +196,17 @@ export function ParkActivityModal({ activity, park, allActivities, onClose, onNa
                     <span className="text-sm text-gray-400">({mockReviews.length} avis)</span>
                   </div>
                 </div>
-                <div className="shrink-0 text-right bg-gray-50 rounded-2xl px-4 py-3">
-                  <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Dès</div>
-                  <div className="text-3xl font-black leading-none" style={{ color: ORANGE }}>{(activity as any).price ?? park.minPrice}€</div>
-                  <div className="text-[10px] text-gray-400 mt-0.5">/ personne</div>
-                </div>
               </div>
 
-              {/* Badges mobile */}
-              <div className="flex flex-wrap gap-2 mb-4 lg:hidden">
-                <span className="px-3 py-1 bg-gray-100 rounded-full text-xs font-bold text-gray-700">{activity.difficulty}</span>
-                <span className="px-3 py-1 rounded-full text-xs font-bold text-white" style={{ backgroundColor: GREEN }}>{activity.minAge}+ ans</span>
-                <span className="px-3 py-1 bg-gray-100 rounded-full text-xs font-bold text-gray-700 flex items-center gap-1">
-                  <Clock className="size-3" />{(activity as any).duration ?? '2h'}
-                </span>
-              </div>
+              {/* Like button desktop */}
+              <motion.button whileHover={{ scale: 1.15 }} whileTap={{ scale: 0.85 }} onClick={(e) => { e.stopPropagation(); setLiked(l => !l); }} className="absolute top-4 left-4 w-10 h-10 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center z-20 text-xl hover:bg-black/70 transition-colors" animate={{ scale: liked ? [1, 1.4, 1] : 1 }}>
+                {liked ? '❤️' : '🤍'}
+              </motion.button>
+            </div>
 
-              {/* Onglets */}
-              <div className="flex gap-1 -mb-px">
+            {/* Onglets */}
+            <div className="px-6 pt-2 border-b border-gray-100 overflow-x-auto scrollbar-hide">
+              <div className="flex gap-1 min-w-max">
                 {tabs.map(tab => (
                   <button key={tab.key} onClick={() => setActiveTab(tab.key)} className={`relative px-4 py-2.5 text-sm font-bold rounded-t-xl transition-all ${activeTab === tab.key ? 'text-gray-900 bg-white border-t-2 border-x-2 border-gray-100' : 'text-gray-400 hover:text-gray-600'}`}>
                     {tab.label}
@@ -335,27 +377,74 @@ export function ParkActivityModal({ activity, park, allActivities, onClose, onNa
                   ))}
                 </motion.div>
               )}
+
+              {activeTab === 'faq' && (
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
+                  <h3 className="font-black text-gray-900 mb-4 text-sm uppercase tracking-wider">Questions fréquentes</h3>
+                  {faqItems.map((item, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      className="border border-gray-100 rounded-2xl overflow-hidden"
+                    >
+                      <button
+                        onClick={() => setOpenFaqIndex(openFaqIndex === index ? null : index)}
+                        className="w-full flex items-center justify-between gap-4 p-5 text-left hover:bg-gray-50 transition-colors"
+                      >
+                        <span className="font-bold text-gray-900 text-sm flex-1">{item.question}</span>
+                        <ChevronDown
+                          className={`size-5 text-gray-400 transition-transform duration-300 flex-shrink-0 ${
+                            openFaqIndex === index ? 'rotate-180' : ''
+                          }`}
+                          style={{ color: GREEN }}
+                        />
+                      </button>
+                      <AnimatePresence>
+                        {openFaqIndex === index && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.3 }}
+                            className="overflow-hidden"
+                          >
+                            <div className="p-5 pt-0 text-gray-600 text-sm leading-relaxed border-t border-gray-100">
+                              {item.answer}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </motion.div>
+                  ))}
+                </motion.div>
+              )}
             </div>
 
-            {/* Footer avec CTA */}
-            <div className="p-4 lg:p-5 border-t border-gray-100 bg-white/95 backdrop-blur-sm flex items-center gap-3">
-              <div className="hidden sm:block">
-                <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Prix</div>
-                <div className="text-2xl font-black leading-none" style={{ color: ORANGE }}>
-                  {(activity as any).price ?? park.minPrice}€
-                  <span className="text-sm font-medium text-gray-400 ml-1">/ pers.</span>
-                </div>
-              </div>
+            {/* Footer avec 2 CTA - Sans prix */}
+            <div className="p-4 lg:p-5 border-t border-gray-100 bg-white/95 backdrop-blur-sm grid grid-cols-2 gap-3">
               <Link
                 to="/booking"
                 state={{ parkId: park.id, activityId: activity.id }}
-                className="flex-1 flex items-center justify-center gap-2.5 py-4 rounded-2xl font-black text-white text-base shadow-xl transition-all hover:shadow-2xl hover:-translate-y-0.5"
-                style={{ background: `linear-gradient(135deg, ${ORANGE} 0%, #ff9a3c 100%)`, boxShadow: `0 8px 28px ${ORANGE}45` }}
+                className="flex items-center justify-center gap-2 py-4 rounded-2xl font-black text-white text-sm shadow-lg transition-all hover:shadow-xl hover:-translate-y-0.5"
+                style={{ background: `linear-gradient(135deg, ${ORANGE} 0%, #ff9a3c 100%)`, boxShadow: `0 4px 16px ${ORANGE}40` }}
                 onClick={handleClose}
               >
-                <Calendar className="size-5" />
-                Réserver · {(activity as any).price ?? park.minPrice}€
-                <ArrowRight className="size-5" />
+                <Ticket className="size-4" />
+                Billetterie
+                <ArrowRight className="size-4" />
+              </Link>
+              <Link
+                to="/evenements"
+                state={{ parkId: park.id, activityId: activity.id }}
+                className="flex items-center justify-center gap-2 py-4 rounded-2xl font-black text-sm border-2 transition-all hover:shadow-lg hover:-translate-y-0.5"
+                style={{ borderColor: GREEN, color: GREEN }}
+                onClick={handleClose}
+              >
+                <PartyPopper className="size-4" />
+                Événement
+                <ArrowRight className="size-4" />
               </Link>
             </div>
           </div>
