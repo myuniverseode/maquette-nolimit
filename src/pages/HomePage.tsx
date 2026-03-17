@@ -1,7 +1,7 @@
 // pages/HomePage.tsx
 import { Link } from 'react-router-dom';
-import { Play, MapPin, Sparkles, Zap, ArrowRight } from 'lucide-react';
-import { useState, useEffect, useRef } from 'react';
+import { Play, MapPin, Sparkles, Zap, ArrowRight, Star, Heart, Shield, Users, Leaf } from 'lucide-react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, useScroll, useTransform, useInView } from 'framer-motion';
 import { HeroCarousel } from '../components/home/HeroCarousel';
 import { ParksList } from '../components/ParkList';
@@ -11,15 +11,36 @@ import { PourQuiSection } from '../components/home/PourQuiSection';
 import { ActualitesSection } from '../components/home/ActualitesSection';
 import { ActivitiesSection } from '../components/home/ActivitiesSection';
 import { TestimonialsSection } from '../components/home/TestimonialsSection';
+import { useHeroData } from '../hooks/useHeroData';
+import { useStatsData } from '../hooks/useStatsData';
+
+// Mapping des noms d'icônes Lucide vers les composants
+const ICON_MAP: Record<string, React.ComponentType<any>> = {
+  Sparkles, Star, Zap, Heart, Play, MapPin, ArrowRight, Shield, Users, Leaf,
+};
+
+function getLucideIcon(name: string, fallback: React.ComponentType<any> = Sparkles) {
+  return ICON_MAP[name] || fallback;
+}
 
 export function HomePage() {
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const heroRef = useRef<HTMLDivElement>(null);
 
+  // ── Données dynamiques depuis WordPress ──
+  const { data: heroData } = useHeroData();
+  const { data: statsData } = useStatsData();
+
   const { scrollYProgress } = useScroll();
   const heroOpacity = useTransform(scrollYProgress, [0, 0.3], [1, 0]);
   const heroScale   = useTransform(scrollYProgress, [0, 0.3], [1, 0.95]);
+
+  // Icône du badge résolue depuis WordPress
+  const BadgeIcon = useMemo(
+    () => getLucideIcon(heroData.badge.icon),
+    [heroData.badge.icon]
+  );
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -43,7 +64,7 @@ export function HomePage() {
       <AncrageMenu />
 
       {/* ════════════════════════════════════════
-          SECTION 1 : HERO
+          SECTION 1 : HERO (données WordPress)
           ════════════════════════════════════════ */}
       <section
         ref={heroRef}
@@ -68,34 +89,38 @@ export function HomePage() {
           transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
         />
 
-        {/* Contenu hero */}
+        {/* ── Contenu hero : badge + titre depuis WP ── */}
         <motion.div
           style={{ opacity: heroOpacity, scale: heroScale, x: mousePosition.x, y: mousePosition.y }}
           className="relative z-10 text-center px-4 max-w-6xl mx-auto"
         >
+          {/* Badge dynamique */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
             className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-md rounded-full border border-white/30 mb-6"
           >
-            <Sparkles className="size-4" style={{ color: '#eb700f' }} />
-            <span className="text-white text-sm font-medium">L'aventure commence ici</span>
+            <BadgeIcon className="size-4" style={{ color: '#eb700f' }} />
+            <span className="text-white text-sm font-medium">
+              {heroData.badge.text}
+            </span>
           </motion.div>
 
+          {/* Titre dynamique */}
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
             className="text-6xl md:text-8xl font-black text-white mb-6 drop-shadow-2xl"
           >
-            L'aventure vous{' '}
+            {heroData.mainTitle.line1}{' '}
             <span className="relative inline-block">
               <span
                 className="relative z-10 text-transparent bg-clip-text"
                 style={{ backgroundImage: 'linear-gradient(to right, #357600, #4a9d00)' }}
               >
-                appelle
+                {heroData.mainTitle.highlight}
               </span>
               <motion.span
                 className="absolute inset-0 blur-xl"
@@ -105,58 +130,62 @@ export function HomePage() {
               />
             </span>
           </motion.h1>
+
+         
         </motion.div>
 
-        {/* Bouton vidéo */}
-        <motion.div
-          className="absolute bottom-8 right-8 z-20"
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 1.2 }}
-        >
-          {!isVideoPlaying ? (
-            <motion.button
-              onClick={() => setIsVideoPlaying(true)}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="group flex items-center gap-3 px-6 py-3 bg-white/20 backdrop-blur-md text-white rounded-full hover:bg-white/30 transition-all border border-white/20"
-            >
-              <motion.div
-                className="relative w-12 h-12 bg-white rounded-full flex items-center justify-center"
-                whileHover={{ rotate: 90 }}
-                transition={{ duration: 0.3 }}
+        {/* ── Bouton vidéo dynamique ── */}
+        {heroData.video?.url && (
+          <motion.div
+            className="absolute bottom-8 right-8 z-20"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 1.2 }}
+          >
+            {!isVideoPlaying ? (
+              <motion.button
+                onClick={() => setIsVideoPlaying(true)}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="group flex items-center gap-3 px-6 py-3 bg-white/20 backdrop-blur-md text-white rounded-full hover:bg-white/30 transition-all border border-white/20"
               >
                 <motion.div
-                  className="absolute inset-0 bg-white rounded-full"
-                  animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
-                  transition={{ duration: 2, repeat: Infinity, ease: 'easeOut' }}
-                />
-                <Play className="size-6 ml-1 relative z-10" style={{ color: '#357600' }} />
-              </motion.div>
-              <div className="text-left">
-                <div className="font-bold">Voir la vidéo</div>
-                <div className="text-sm opacity-80">Découvrez l'expérience</div>
-              </div>
-            </motion.button>
-          ) : (
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="relative w-96 h-64 rounded-2xl overflow-hidden shadow-2xl"
-              style={{ backgroundColor: '#111111' }}
-            >
-              <video
-                className="w-full h-full object-cover"
-                controls
-                autoPlay
-                onPause={() => setIsVideoPlaying(false)}
-                onEnded={() => setIsVideoPlaying(false)}
+                  className="relative w-12 h-12 bg-white rounded-full flex items-center justify-center"
+                  whileHover={{ rotate: 90 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <motion.div
+                    className="absolute inset-0 bg-white rounded-full"
+                    animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: 'easeOut' }}
+                  />
+                  <Play className="size-6 ml-1 relative z-10" style={{ color: '#357600' }} />
+                </motion.div>
+                <div className="text-left">
+                  <div className="font-bold">{heroData.video.buttonText}</div>
+                  <div className="text-sm opacity-80">{heroData.video.description}</div>
+                </div>
+              </motion.button>
+            ) : (
+              <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className="relative w-96 h-64 rounded-2xl overflow-hidden shadow-2xl"
+                style={{ backgroundColor: '#111111' }}
               >
-                <source src="https://www.youtube.com/watch?v=VT2qF97pQNw&list=RDCLAK5uy_mfyL5_q5gAnd-5w7ZgcAqU_-okvlcOA-c&index=2" />
-              </video>
-            </motion.div>
-          )}
-        </motion.div>
+                <video
+                  className="w-full h-full object-cover"
+                  controls
+                  autoPlay
+                  onPause={() => setIsVideoPlaying(false)}
+                  onEnded={() => setIsVideoPlaying(false)}
+                >
+                  <source src={heroData.video.url} />
+                </video>
+              </motion.div>
+            )}
+          </motion.div>
+        )}
       </section>
 
       {/* ════════════════════════════════════════
@@ -242,6 +271,61 @@ export function HomePage() {
         <NewsletterSection compact={true} />
       </div>
 
+    </div>
+  );
+}
+
+// ════════════════════════════════════════
+// COMPOSANT : Stats Grid dynamique (données WP)
+// ════════════════════════════════════════
+import { TrendingUp, Award, Trophy } from 'lucide-react';
+
+const STAT_ICON_MAP: Record<string, React.ComponentType<any>> = {
+  MapPin, Star, Users, Award, Trophy, TrendingUp, Heart, Zap,
+};
+
+function StatsGridDynamic({ stats, compact = false }: { stats: import('../hooks/useStatsData').StatItem[]; compact?: boolean }) {
+
+  const getBgColor = (color?: string) => {
+    switch (color) {
+      case 'green':  return 'bg-gradient-to-br from-green-400/20 to-green-600/10';
+      case 'blue':   return 'bg-gradient-to-br from-blue-400/20 to-blue-600/10';
+      case 'orange': return 'bg-gradient-to-br from-orange-400/20 to-orange-600/10';
+      case 'purple': return 'bg-gradient-to-br from-purple-400/20 to-purple-600/10';
+      default:       return 'bg-white/10';
+    }
+  };
+
+  return (
+    <div className={`grid ${compact ? 'grid-cols-2' : 'grid-cols-2 md:grid-cols-4'} gap-4 max-w-3xl mx-auto`}>
+      {stats.map((stat) => {
+        const IconComponent = STAT_ICON_MAP[stat.icon] || Star;
+        return (
+          <div
+            key={stat.label}
+            className={`${getBgColor(stat.color)} backdrop-blur-sm rounded-xl p-4 text-white relative overflow-hidden`}
+          >
+            <div className="absolute -top-10 -right-10 w-20 h-20 bg-white/10 rounded-full blur-xl" />
+
+            <div className="flex items-start justify-between mb-2">
+              <div className="p-2 bg-white/20 rounded-lg">
+                <IconComponent className="size-5" />
+              </div>
+              {stat.trendValue && (
+                <div className="text-xs font-medium text-green-500">
+                  ↗ {stat.trendValue}
+                </div>
+              )}
+            </div>
+
+            <div className="text-3xl font-bold mb-1">{stat.value}</div>
+            <div className="font-medium text-sm">{stat.label}</div>
+            {stat.sublabel && (
+              <div className="text-xs text-white/70 mt-1">{stat.sublabel}</div>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }

@@ -107,7 +107,7 @@ export function HeroCarousel({
         ))}
       </div>
 
-      {/* 🌊 Vague avec continuité couleur */}
+      {/*  Vague avec continuité couleur */}
      <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none z-10">
   <svg
     viewBox="0 0 1440 160"

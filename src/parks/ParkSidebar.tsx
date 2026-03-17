@@ -35,7 +35,6 @@ const socialLinks = [
 const reviewLinks = [
   { icon: FaGoogle, label: 'Google', handle: '4.5 ★', color: '#4285F4' },
   { icon: FaTripadvisor, label: 'Tripadvisor', handle: '4.5 ★', color: '#00AF87' },
-
 ];
 
 export function ParkSidebar({ park }: { park: any }) {
@@ -120,18 +119,25 @@ export function ParkSidebar({ park }: { park: any }) {
         maxHeight: `calc(100vh - ${topOffset + 24}px)`,
       }}
     >
-      {/* Bouton toggle */}
+      {/* ── Bouton toggle — bien visible, orange quand ouvert / vert quand réduit ── */}
       <motion.button
         onClick={() => setCollapsed(c => !c)}
-        whileHover={{ scale: 1.08 }}
-        whileTap={{ scale: 0.93 }}
-        className="absolute -left-4 top-6 w-8 h-8 rounded-full bg-white border-2 border-gray-200 shadow-md flex items-center justify-center z-10 hover:border-green-400 transition-colors"
-        style={{ borderColor: collapsed ? GREEN : undefined }}
+        whileHover={{ scale: 1.12 }}
+        whileTap={{ scale: 0.9 }}
+        className="absolute -left-5 top-6 w-10 h-10 rounded-full flex items-center justify-center z-10 shadow-xl"
+        style={{
+          background: collapsed
+            ? `linear-gradient(135deg, ${GREEN}, #4a9d00)`
+            : `linear-gradient(135deg, ${ORANGE}, #ff9a3c)`,
+          boxShadow: collapsed
+            ? `0 4px 20px ${GREEN}70`
+            : `0 4px 20px ${ORANGE}70`,
+        }}
         title={collapsed ? 'Afficher la sidebar' : 'Réduire'}
       >
         {collapsed
-          ? <PanelRightOpen  className="size-4" style={{ color: GREEN }} />
-          : <PanelRightClose className="size-4 text-gray-500" />
+          ? <PanelRightOpen  className="size-5 text-white" />
+          : <PanelRightClose className="size-5 text-white" />
         }
       </motion.button>
 
@@ -147,14 +153,18 @@ export function ParkSidebar({ park }: { park: any }) {
             className="overflow-y-auto space-y-4 pr-1 pb-6"
             style={{ maxHeight, scrollbarWidth: 'thin' }}
           >
-            {/* Bloc statut + réservation - SANS "État du parc" */}
+            {/* ── Fond décoratif vert derrière le premier bloc ── */}
             <motion.div
               variants={itemVariants}
-              className="rounded-2xl overflow-hidden shadow-xl border border-gray-100 bg-white"
+              className="rounded-2xl overflow-hidden shadow-xl border border-white/20"
+              style={{
+                background: `linear-gradient(145deg, ${GREEN}18 0%, ${ORANGE}12 100%)`,
+                borderColor: `${GREEN}30`,
+              }}
             >
-              <div className="h-1" style={{ background: `linear-gradient(to right, ${GREEN}, ${ORANGE})` }} />
+              <div className="h-1.5" style={{ background: `linear-gradient(to right, ${GREEN}, ${ORANGE})` }} />
               <div className="p-6">
-                {/* Status badge seulement, sans le texte "État du parc" */}
+                {/* Status badge */}
                 <div className="flex justify-center mb-6">
                   <ParkStatusBadge parkSlug={park.id} size="lg" />
                 </div>
@@ -173,7 +183,7 @@ export function ParkSidebar({ park }: { park: any }) {
                 <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}>
                   <Link
                     to="/evenements"
-                    className="flex items-center justify-center gap-2 w-full py-3 rounded-xl font-bold text-sm border-2"
+                    className="flex items-center justify-center gap-2 w-full py-3 rounded-xl font-bold text-sm border-2 bg-white/60"
                     style={{ borderColor: GREEN, color: GREEN }}
                   >
                     <PartyPopper className="size-4" /> En faire un événement
@@ -222,7 +232,7 @@ export function ParkSidebar({ park }: { park: any }) {
               </a>
             </motion.div>
 
-            {/* Réseaux sociaux - 1 ligne avec icônes officielles */}
+            {/* Réseaux sociaux */}
             <motion.div
               variants={itemVariants}
               className="rounded-2xl overflow-hidden border border-gray-100 bg-white shadow-sm p-4"
@@ -246,27 +256,35 @@ export function ParkSidebar({ park }: { park: any }) {
               </div>
             </motion.div>
 
-            {/* Avis - 1 ligne avec icônes officielles */}
+            {/* ── Avis : label + icônes sur la même ligne ── */}
             <motion.div
               variants={itemVariants}
               className="rounded-2xl overflow-hidden border border-gray-100 bg-white shadow-sm p-4"
             >
-              <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-3">Laissez-nous un avis</div>
-              <div className="grid grid-cols-3 gap-1">
-                {reviewLinks.map(({ icon: Icon, label, handle, color }) => (
-                  <motion.a
-                    key={label}
-                    href="#"
-                    whileHover={{ y: -2 }}
-                    className="flex flex-col items-center justify-center p-2 rounded-xl hover:bg-gray-50 transition-all group"
-                    title={label}
-                  >
-                    <div className="w-7 h-7 rounded-full flex items-center justify-center mb-1 transition-transform group-hover:scale-110" style={{ backgroundColor: `${color}15` }}>
-                      <Icon className="text-sm" style={{ color }} />
-                    </div>
-                    <span className="text-[8px] font-medium text-gray-500 text-center truncate w-full">{handle}</span>
-                  </motion.a>
-                ))}
+              {/* Label + icônes côte à côte */}
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-1.5">
+                  <Star className="size-3.5 fill-yellow-400 text-yellow-400" />
+                  <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider whitespace-nowrap">
+                    Laissez-nous un avis
+                  </span>
+                </div>
+                <div className="flex gap-2">
+                  {reviewLinks.map(({ icon: Icon, label, handle, color }) => (
+                    <motion.a
+                      key={label}
+                      href="#"
+                      whileHover={{ y: -2, scale: 1.1 }}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl hover:bg-gray-50 transition-all group border border-gray-100"
+                      title={label}
+                    >
+                      <div className="w-5 h-5 rounded-full flex items-center justify-center transition-transform group-hover:scale-110" style={{ backgroundColor: `${color}15` }}>
+                        <Icon className="text-xs" style={{ color }} />
+                      </div>
+                      <span className="text-[10px] font-bold text-gray-600">{handle}</span>
+                    </motion.a>
+                  ))}
+                </div>
               </div>
             </motion.div>
           </motion.div>

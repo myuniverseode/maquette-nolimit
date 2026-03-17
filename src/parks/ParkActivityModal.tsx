@@ -63,7 +63,7 @@ export function ParkActivityModal({ activity, park, allActivities, onClose, onNa
 
   const tabs = [
     { key: 'infos',  label: '📋 Infos'                    },
-    { key: 'inclus', label: '✅ Inclus'                   },
+    { key: 'inclus', label: '✅ A savoir'                   },
     { key: 'avis',   label: `⭐ Avis (${mockReviews.length})` },
     { key: 'faq',    label: '❓ FAQ'                      },
   ] as const;
@@ -204,14 +204,30 @@ export function ParkActivityModal({ activity, park, allActivities, onClose, onNa
               </motion.button>
             </div>
 
-            {/* Onglets */}
-            <div className="px-6 pt-2 border-b border-gray-100 overflow-x-auto scrollbar-hide">
-              <div className="flex gap-1 min-w-max">
+            {/* Onglets — grille adaptée mobile */}
+            <div className="border-b border-gray-100 bg-gray-50/60">
+              <div className="grid grid-cols-4">
                 {tabs.map(tab => (
-                  <button key={tab.key} onClick={() => setActiveTab(tab.key)} className={`relative px-4 py-2.5 text-sm font-bold rounded-t-xl transition-all ${activeTab === tab.key ? 'text-gray-900 bg-white border-t-2 border-x-2 border-gray-100' : 'text-gray-400 hover:text-gray-600'}`}>
-                    {tab.label}
+                  <button
+                    key={tab.key}
+                    onClick={() => setActiveTab(tab.key)}
+                    className={`relative flex flex-col items-center justify-center gap-0.5 py-3 px-1 text-xs font-bold transition-all ${
+                      activeTab === tab.key
+                        ? 'text-gray-900 bg-white'
+                        : 'text-gray-400 hover:text-gray-600 hover:bg-white/50'
+                    }`}
+                  >
+                    {/* Emoji séparé du texte pour lisibilité mobile */}
+                    <span className="text-base leading-none">{tab.label.split(' ')[0]}</span>
+                    <span className="text-[10px] leading-tight text-center truncate w-full px-1">
+                      {tab.label.split(' ').slice(1).join(' ')}
+                    </span>
                     {activeTab === tab.key && (
-                      <motion.div layoutId="modal-tab-indicator" className="absolute bottom-0 left-0 right-0 h-0.5" style={{ backgroundColor: ORANGE }} />
+                      <motion.div
+                        layoutId="modal-tab-indicator"
+                        className="absolute bottom-0 left-0 right-0 h-0.5"
+                        style={{ backgroundColor: ORANGE }}
+                      />
                     )}
                   </button>
                 ))}

@@ -1,33 +1,21 @@
 // hooks/useNewsletterData.ts - Hook pour la section Newsletter
 import { useState, useEffect } from 'react';
-import { NewsletterData, NewsletterBenefit } from '../types';
+import { NewsletterData } from '../types';
+import { API_URL, API_KEY } from '../config/config';
 
-// ===== DONNÉES PAR DÉFAUT (actuellement en dur dans NewsletterSection.tsx) =====
 const defaultNewsletterData: NewsletterData = {
   title: 'Restez informé de nos aventures',
-  subtitle: 'Recevez nos offres exclusives, nouveautés et conseils d\'aventure directement dans votre boîte mail',
+  subtitle: "Recevez nos offres exclusives, nouveautés et conseils d'aventure directement dans votre boîte mail",
   placeholder: 'Votre adresse email',
-  buttonText: 'S\'inscrire',
+  buttonText: "S'inscrire",
   privacyNotice: 'En vous inscrivant, vous acceptez de recevoir nos emails. Vous pouvez vous désabonner à tout moment.',
   successMessage: 'Merci ! Vous êtes inscrit à notre newsletter',
   benefits: [
-    {
-      icon: '🎟️',
-      title: 'Offres exclusives',
-      description: 'Réductions réservées aux abonnés'
-    },
-    {
-      icon: '🎯',
-      title: 'Nouveautés en avant-première',
-      description: 'Soyez les premiers informés'
-    },
-    {
-      icon: '💡',
-      title: 'Conseils d\'experts',
-      description: 'Astuces pour profiter au maximum'
-    }
+    { icon: '🎟️', title: 'Offres exclusives', description: 'Réductions réservées aux abonnés' },
+    { icon: '🎯', title: 'Nouveautés en avant-première', description: 'Soyez les premiers informés' },
+    { icon: '💡', title: "Conseils d'experts", description: 'Astuces pour profiter au maximum' },
   ],
-  apiEndpoint: '/wp-json/nolimit/v1/newsletter/subscribe'
+  apiEndpoint: '/wp-json/nolimit/v1/newsletter/subscribe',
 };
 
 export function useNewsletterData() {
@@ -36,16 +24,15 @@ export function useNewsletterData() {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    const apiUrl = 'https://www.preprod.nolimit-aventure.com/wp-json/nolimit/v1/newsletter';
-
-    fetch(apiUrl)
+    fetch(`${API_URL}/newsletter`, {
+      headers: { 'Content-Type': 'application/json', 'X-NoLimit-Key': API_KEY || '' },
+    })
       .then(res => {
         if (!res.ok) throw new Error('Erreur API Newsletter');
         return res.json();
       })
       .then(wpData => {
         console.log('✅ Newsletter config chargée depuis WordPress:', wpData);
-        // Fusion intelligente avec les valeurs par défaut
         const mergedData: NewsletterData = {
           title: wpData.title || defaultNewsletterData.title,
           subtitle: wpData.subtitle || defaultNewsletterData.subtitle,
@@ -53,18 +40,20 @@ export function useNewsletterData() {
           buttonText: wpData.buttonText || wpData.button_text || defaultNewsletterData.buttonText,
           privacyNotice: wpData.privacyNotice || wpData.privacy_notice || defaultNewsletterData.privacyNotice,
           successMessage: wpData.successMessage || wpData.success_message || defaultNewsletterData.successMessage,
-          benefits: wpData.benefits?.length ? wpData.benefits.map((benefit: any, index: number) => ({
-            icon: benefit.icon || defaultNewsletterData.benefits[index]?.icon || '✨',
-            title: benefit.title || defaultNewsletterData.benefits[index]?.title || '',
-            description: benefit.description || benefit.desc || defaultNewsletterData.benefits[index]?.description || '',
-          })) : defaultNewsletterData.benefits,
-          apiEndpoint: wpData.apiEndpoint || wpData.api_endpoint || defaultNewsletterData.apiEndpoint,
+          benefits: wpData.benefits?.length
+            ? wpData.benefits.map((b: any, i: number) => ({
+                icon: b.icon || defaultNewsletterData.benefits[i]?.icon || '✨',
+                title: b.title || defaultNewsletterData.benefits[i]?.title || '',
+                description: b.description || b.desc || defaultNewsletterData.benefits[i]?.description || '',
+              }))
+            : defaultNewsletterData.benefits,
+          apiEndpoint: wpData.apiEndpoint || defaultNewsletterData.apiEndpoint,
         };
         setData(mergedData);
         setLoading(false);
       })
       .catch(err => {
-        console.warn('⚠️ Newsletter WordPress indisponible, utilisation des valeurs par défaut:', err.message);
+        console.warn('⚠️ Newsletter WordPress indisponible:', err.message);
         setData(defaultNewsletterData);
         setError(err);
         setLoading(false);
@@ -74,5 +63,4 @@ export function useNewsletterData() {
   return { data, loading, error, defaultData: defaultNewsletterData };
 }
 
-// Export des données par défaut
 export { defaultNewsletterData };

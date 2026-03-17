@@ -27,6 +27,7 @@ import { ParkContactSection }   from './ParkContactSection';
 import { ParkActivityModal }    from './ParkActivityModal';
 import { ParkNewsletterBanner } from './ParkNewsletterBanner';
 import { ParkBrevoForm }        from './ParkBrevoForm';
+import { ParkReviewsSection }   from './Parkreviewssection';
 import {
   AnimatedSection, SectionBadge, DarkSectionBg,
   SubtlePatternBg, FloatingBlob,
@@ -130,37 +131,57 @@ export function ParkOnePage() {
 
             {/* ── INFOS PRATIQUES UNIFIÉES ── */}
             <section id="infos" className="relative">
-              <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-10">
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-4 text-sm font-medium border" style={{ backgroundColor: `${ORANGE}10`, borderColor: `${ORANGE}30`, color: ORANGE }}>
-                  Préparez votre visite
+              {/* Titre aligné à gauche comme "Bienvenue au parc" */}
+              <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-8">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-1 h-7 rounded-full" style={{ backgroundColor: ORANGE }} />
+                  <h2 className="text-3xl font-black" style={{ color: DARK }}>Infos <span style={{ color: GREEN }}>pratiques</span></h2>
                 </div>
-                <h2 className="text-3xl md:text-4xl font-black mb-2" style={{ color: DARK }}>
-                  Infos <span style={{ color: GREEN }}>pratiques</span>
-                </h2>
-                <p className="text-gray-600">Tout ce qu'il faut savoir avant de venir</p>
+                <p className="text-gray-500 text-sm ml-4">Tout ce qu'il faut savoir avant de venir</p>
               </motion.div>
 
-              {/* Grille principale 2 colonnes */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-6xl mx-auto">
-                
-                {/* Colonne gauche : Horaires + Statut */}
-                <motion.div 
-                  initial={{ opacity: 0, x: -30 }} 
-                  whileInView={{ opacity: 1, x: 0 }} 
-                  viewport={{ once: true }} 
-                  className="bg-white rounded-2xl p-6 shadow-md border border-gray-100"
+              {/*
+                DISPOSITION :
+                ┌──────────────────┬──────────────────┬──────────────────┐
+                │  Calendrier /    │      Météo       │  Comment venir   │  ← 3 cols égales, météo & comment même hauteur
+                │  Horaires        │   (agrandi ↕)    │  infos en liste  │
+                │  (agrandi ↕)     ├──────────────────┴──────────────────┤
+                │                  │      Équipements & Services          │  ← 2/3 de largeur, sous météo + comment venir
+                └──────────────────┴─────────────────────────────────────┘
+              */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 max-w-6xl mx-auto">
+
+                {/* ── COL 1 : Calendrier / Horaires ── agrandi vers le bas */}
+                <motion.div
+                  initial={{ opacity: 0, x: -30 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  className="bg-white rounded-2xl p-6 shadow-md border border-gray-100 flex flex-col lg:row-span-2"
+                  style={{ minHeight: '480px' }}
                 >
-                  <div className="flex items-center gap-3 mb-4">
+                  <div className="flex items-center gap-3 mb-5">
                     <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${GREEN}15` }}>
                       <Clock className="size-5" style={{ color: GREEN }} />
                     </div>
-                    <h3 className="text-xl font-black" style={{ color: DARK }}>Horaires d'ouverture</h3>
+                    <h3 className="text-xl font-black" style={{ color: DARK }}>Calendrier & horaires</h3>
                   </div>
-                  
-                  <div className="mb-4">
+
+                  <div className="mb-5">
                     <ParkStatusBadge parkSlug={park.id} size="md" showDetails={true} />
                   </div>
-                  
+
+                  {/* Placeholder calendrier — sera remplacé. flex-1 pour remplir toute la hauteur disponible */}
+                  <div
+                    className="flex-1 rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-3 p-6"
+                    style={{ borderColor: `${GREEN}30`, backgroundColor: `${GREEN}05`, minHeight: '220px' }}
+                  >
+                    <Calendar className="size-12 opacity-25" style={{ color: GREEN }} />
+                    <span className="text-sm text-gray-400 font-medium text-center">
+                      Calendrier de disponibilités
+                      <br /><span className="text-xs">Bientôt disponible</span>
+                    </span>
+                  </div>
+
                   <div className="mt-4 pt-3 border-t border-gray-100">
                     <div className="flex items-start gap-2 text-xs p-3 rounded-lg" style={{ backgroundColor: `${ORANGE}08`, border: `1px solid ${ORANGE}20` }}>
                       <AlertCircle className="size-4 flex-shrink-0" style={{ color: ORANGE }} />
@@ -169,112 +190,122 @@ export function ParkOnePage() {
                   </div>
                 </motion.div>
 
-                {/* Colonne droite : Météo */}
-                <motion.div 
-                  initial={{ opacity: 0, x: 30 }} 
-                  whileInView={{ opacity: 1, x: 0 }} 
+                {/* ── COL 2 : Météo — allongée verticalement, même hauteur que Comment venir ── */}
+                <motion.div
+                  initial={{ opacity: 0, y: -20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
+                  className="flex flex-col"
+                  style={{ minHeight: '200px' }}
                 >
-                  <ParkWeatherBlock />
-                </motion.div>
-
-                {/* Ligne complète : Accès (sur 2 colonnes) */}
-                <motion.div 
-                  initial={{ opacity: 0, y: 30 }} 
-                  whileInView={{ opacity: 1, y: 0 }} 
-                  viewport={{ once: true }} 
-                  className="lg:col-span-2 bg-white rounded-2xl p-6 shadow-md border border-gray-100"
-                >
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${ORANGE}15` }}>
-                      <MapPin className="size-5" style={{ color: ORANGE }} />
-                    </div>
-                    <h3 className="text-xl font-black" style={{ color: DARK }}>Comment venir ?</h3>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <motion.a
-                      href={`https://maps.google.com/?q=${encodeURIComponent(park.location)}`}
-                      target="_blank" rel="noopener noreferrer"
-                      whileHover={{ scale: 1.02 }}
-                      className="flex items-start gap-3 p-4 rounded-xl transition-all"
-                      style={{ backgroundColor: `${ORANGE}08`, border: `1px solid ${ORANGE}30` }}
-                    >
-                      <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: ORANGE }}>
-                        <MapPin className="size-5 text-white" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="font-bold text-gray-900 mb-1">📍 Adresse</div>
-                        <div className="text-gray-700 text-sm">{park.location}</div>
-                        <div className="text-xs mt-1" style={{ color: ORANGE }}>Ouvrir dans Google Maps →</div>
-                      </div>
-                    </motion.a>
-
-                    <div className="grid grid-cols-2 gap-3">
-                      {[
-                        { icon: Car, color: GREEN, title: 'Voiture', desc: 'Parking gratuit' },
-                        { icon: Bike, color: ORANGE, title: 'Vélo', desc: 'Piste cyclable' },
-                      ].map(({ icon: Icon, color, title, desc }) => (
-                        <div key={title} className="flex items-center gap-2 p-3 rounded-lg bg-gray-50">
-                          <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${color}15` }}>
-                            <Icon className="size-4" style={{ color }} />
-                          </div>
-                          <div>
-                            <div className="font-bold text-gray-900 text-xs">{title}</div>
-                            <div className="text-gray-600 text-[10px]">{desc}</div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+                  {/* Le bloc météo prend toute la hauteur disponible */}
+                  <div className="flex-1 h-full">
+                    <ParkWeatherBlock />
                   </div>
                 </motion.div>
 
-                {/* Ligne complète : Accessibilité */}
-                <motion.div 
-                  initial={{ opacity: 0, y: 30 }} 
-                  whileInView={{ opacity: 1, y: 0 }} 
-                  viewport={{ once: true }} 
-                  className="lg:col-span-2"
+                {/* ── COL 3 : Comment venir — même hauteur que Météo, infos en colonne ── */}
+                <motion.div
+                  initial={{ opacity: 0, y: -20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  className="bg-white rounded-2xl p-5 shadow-md border border-gray-100 flex flex-col gap-3"
+                  style={{ minHeight: '200px' }}
                 >
-                  <ParkAccessibilityBlock />
-                </motion.div>
-              </div>
-            </section>
+                  <div className="flex items-center gap-2">
+                    <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: `${ORANGE}15` }}>
+                      <MapPin className="size-4" style={{ color: ORANGE }} />
+                    </div>
+                    <h3 className="text-base font-black" style={{ color: DARK }}>Comment venir ?</h3>
+                  </div>
 
-            {/* ── ÉQUIPEMENTS SUR PLACE ── */}
-            <section className="relative">
-              <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-10">
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-4 text-sm font-medium border" style={{ backgroundColor: `${GREEN}10`, borderColor: `${GREEN}30`, color: GREEN }}>
-                  <Shield className="size-4" /> Sur place
-                </div>
-                <h2 className="text-3xl md:text-4xl font-black mb-2" style={{ color: DARK }}>
-                  Équipements <span style={{ color: ORANGE }}>& services</span>
-                </h2>
-              </motion.div>
-
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 max-w-5xl mx-auto">
-                {[
-                  { icon: Shield, title: 'Vestiaires', color: GREEN },
-                  { icon: Utensils, title: 'Restauration', color: ORANGE },
-                  { icon: ShoppingBag, title: 'Boutique', color: GREEN },
-                  { icon: Droplets, title: 'Sanitaires', color: ORANGE },
-                  { icon: Trees, title: 'Zone ombragée', color: GREEN },
-                  { icon: Wifi, title: 'WiFi gratuit', color: ORANGE },
-                ].map((item, idx) => (
-                  <motion.div
-                    key={idx}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: idx * 0.05 }}
-                    className="bg-white rounded-xl p-4 text-center shadow-sm border border-gray-100"
+                  {/* Adresse */}
+                  <motion.a
+                    href={`https://maps.google.com/?q=${encodeURIComponent(park.location)}`}
+                    target="_blank" rel="noopener noreferrer"
+                    whileHover={{ scale: 1.01 }}
+                    className="flex items-start gap-2 p-3 rounded-xl transition-all"
+                    style={{ backgroundColor: `${ORANGE}08`, border: `1px solid ${ORANGE}30` }}
                   >
-                    <div className="w-10 h-10 rounded-lg flex items-center justify-center mx-auto mb-2" style={{ backgroundColor: `${item.color}15` }}>
-                      <item.icon className="size-5" style={{ color: item.color }} />
+                    <MapPin className="size-4 flex-shrink-0 mt-0.5" style={{ color: ORANGE }} />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-gray-700 text-xs leading-relaxed">{park.location}</div>
+                      <div className="text-[10px] mt-0.5 font-medium" style={{ color: ORANGE }}>Ouvrir Google Maps →</div>
                     </div>
-                    <h3 className="font-bold text-gray-900 text-xs">{item.title}</h3>
-                  </motion.div>
-                ))}
+                  </motion.a>
+
+                  {/* Modes de transport — en colonne */}
+                  <div className="flex flex-col gap-2 flex-1">
+                    {[
+                      { icon: Car,  color: GREEN,  title: 'Voiture', desc: 'Parking gratuit sur place' },
+                      { icon: Bike, color: ORANGE, title: 'Vélo',    desc: 'Piste cyclable à proximité' },
+                    ].map(({ icon: Icon, color, title, desc }) => (
+                      <div key={title} className="flex items-center gap-3 p-3 rounded-lg bg-gray-50">
+                        <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: `${color}15` }}>
+                          <Icon className="size-4" style={{ color }} />
+                        </div>
+                        <div>
+                          <div className="font-bold text-gray-900 text-sm">{title}</div>
+                          <div className="text-gray-500 text-xs">{desc}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+
+                {/* ── Équipements & Services ── occupe les 2 dernières colonnes (météo + comment venir) */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  className="lg:col-span-2 bg-white rounded-2xl p-5 shadow-md border border-gray-100"
+                >
+                  <div className="flex items-center gap-3 mb-4 flex-wrap">
+                    <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${GREEN}15` }}>
+                      <Shield className="size-5" style={{ color: GREEN }} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-base font-black" style={{ color: DARK }}>Équipements & Services</h3>
+                      <p className="text-gray-400 text-xs">Accessibilité, services et commodités sur place</p>
+                    </div>
+                    <div className="px-2.5 py-1 rounded-full text-[10px] font-black text-white shrink-0" style={{ backgroundColor: GREEN }}>
+                      Label Tourisme & Handicap
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                    {[
+                      { icon: '♿', label: 'PMR',                  detail: 'Rampes, parking réservé' },
+                      { icon: '👁️', label: 'Déficience visuelle',  detail: 'Parcours balisés' },
+                      { icon: '👂', label: 'Déficience auditive',   detail: 'Communication visuelle' },
+                      { icon: '🧠', label: 'Handicap cognitif',     detail: 'Activités adaptées' },
+                      { icon: '🧒', label: 'Poussettes',            detail: 'Allées larges, aire de change' },
+                      { icon: '🐕', label: 'Animaux assistance',    detail: 'Chiens guides acceptés' },
+                      { icon: '🅿️', label: 'Parking',              detail: '200 places · gratuit' },
+                      { icon: '🍽️', label: 'Snack bar',             detail: 'Ouvert 10h–17h' },
+                      { icon: '🚿', label: 'Vestiaires',            detail: 'Douches incluses' },
+                      { icon: '📶', label: 'WiFi',                  detail: 'Gratuit & illimité' },
+                      { icon: '🧰', label: 'Matériel',              detail: 'Tout fourni' },
+                      { icon: '🌳', label: 'Détente',               detail: 'Zone ombragée' },
+                    ].map((item, i) => (
+                      <motion.div
+                        key={i}
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        whileInView={{ opacity: 1, scale: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: i * 0.03 }}
+                        className="flex items-center gap-2 p-2.5 rounded-xl border border-gray-100 hover:border-green-200 hover:bg-green-50/30 transition-all"
+                      >
+                        <span className="text-base flex-shrink-0">{item.icon}</span>
+                        <div className="min-w-0">
+                          <div className="font-bold text-gray-900 text-[11px] truncate">{item.label}</div>
+                          <div className="text-gray-400 text-[10px] truncate">{item.detail}</div>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                </motion.div>
+
               </div>
             </section>
 
@@ -430,6 +461,9 @@ export function ParkOnePage() {
  
       {/* ════ BANDEAU NEWSLETTER (léger) ════ */}
       <ParkNewsletterBanner parkSlug={parkId} />
+
+      {/* ════ AVIS DU PARC ════ */}
+      <ParkReviewsSection park={park} />
  
       {/* ════ CONTACT ════ */}
       <section id="contact" className="relative bg-gradient-to-b from-gray-50 to-white">

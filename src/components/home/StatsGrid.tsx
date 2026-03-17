@@ -1,63 +1,20 @@
 // components/home/StatsGrid.tsx
-import { TrendingUp, Users, Star, MapPin, Trophy, Award } from 'lucide-react';
+import { TrendingUp, Users, Star, MapPin, Trophy, Award, Heart, Zap } from 'lucide-react';
+import { useStatsData } from '../../hooks/useStatsData';
 
-interface StatItem {
-  value: string;
-  label: string;
-  sublabel?: string;
-  icon: React.ReactNode;
-  trend?: 'up' | 'down' | 'neutral';
-  trendValue?: string;
-  color?: 'green' | 'blue' | 'orange' | 'purple';
-}
+const iconMap: Record<string, React.ReactNode> = {
+  MapPin: <MapPin className="size-5" />,
+  Star: <Star className="size-5" />,
+  Users: <Users className="size-5" />,
+  Award: <Award className="size-5" />,
+  Trophy: <Trophy className="size-5" />,
+  TrendingUp: <TrendingUp className="size-5" />,
+  Heart: <Heart className="size-5" />,
+  Zap: <Zap className="size-5" />,
+};
 
 export function StatsGrid({ compact = false }: { compact?: boolean }) {
-  const stats: StatItem[] = [
-    {
-      value: '5',
-      label: 'Parcs',
-      sublabel: 'en France',
-      icon: <MapPin className="size-5" />,
-      trend: 'up',
-      trendValue: '+1 cette année',
-      color: 'green'
-    },
-    {
-      value: '98%',
-      label: 'Satisfaction',
-      sublabel: 'clients',
-      icon: <Star className="size-5" />,
-      trend: 'up',
-      trendValue: '4.8/5 avis',
-      color: 'orange'
-    },
-    {
-      value: '50k+',
-      label: 'Aventuriers',
-      sublabel: 'par an',
-      icon: <Users className="size-5" />,
-      trend: 'up',
-      trendValue: '+15% vs 2023',
-      color: 'blue'
-    },
-    {
-      value: '20+',
-      label: 'Activités',
-      sublabel: 'uniques',
-      icon: <Award className="size-5" />,
-      trend: 'up',
-      trendValue: 'Nouveautés régulières',
-      color: 'purple'
-    }
-  ];
-
-  const getTrendColor = (trend?: 'up' | 'down' | 'neutral') => {
-    switch (trend) {
-      case 'up': return 'text-green-500';
-      case 'down': return 'text-red-500';
-      default: return 'text-gray-500';
-    }
-  };
+  const { data } = useStatsData();
 
   const getBgColor = (color?: string) => {
     switch (color) {
@@ -71,21 +28,20 @@ export function StatsGrid({ compact = false }: { compact?: boolean }) {
 
   return (
     <div className={`grid ${compact ? 'grid-cols-2' : 'grid-cols-2 md:grid-cols-4'} gap-4 max-w-3xl mx-auto`}>
-      {stats.map((stat) => (
+      {data.stats.map((stat) => (
         <div 
           key={stat.label}
           className={`${getBgColor(stat.color)} backdrop-blur-sm rounded-xl p-4 text-white relative overflow-hidden`}
         >
-          {/* Effet de brillance */}
           <div className="absolute -top-10 -right-10 w-20 h-20 bg-white/10 rounded-full blur-xl" />
           
           <div className="flex items-start justify-between mb-2">
             <div className="p-2 bg-white/20 rounded-lg">
-              {stat.icon}
+              {iconMap[stat.icon] || <Star className="size-5" />}
             </div>
-            {stat.trend && (
-              <div className={`text-xs font-medium ${getTrendColor(stat.trend)}`}>
-                {stat.trend === 'up' ? '↗' : '↘'} {stat.trendValue}
+            {stat.trendValue && (
+              <div className="text-xs font-medium text-green-500">
+                ↗ {stat.trendValue}
               </div>
             )}
           </div>
