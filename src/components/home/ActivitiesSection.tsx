@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ArrowRight, Zap, PartyPopper, ChevronRight, Clock, Users, Info } from 'lucide-react';
+import { X, ArrowRight, Zap, PartyPopper, ChevronRight, Clock, Users } from 'lucide-react';
 import { useActivitiesData, type TarifGroupe } from '../../hooks/useActiviesData';
 import { usePourQuiData } from '../../hooks/usePourQuiData';
 
@@ -86,7 +86,6 @@ export function ActivitiesSection() {
   return (
     <>
       <section id="activites" className="relative py-20 overflow-hidden" style={{ backgroundColor: '#111111' }}>
-        {/* Background and decorative elements unchanged */}
         <div className="absolute inset-0 opacity-5" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0L100 0L100 1L0 1ZM0 0L0 100L1 100L1 0Z' fill='%23ffffff'/%3E%3C/svg%3E")`, backgroundSize: '50px 50px' }} />
         <motion.div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl pointer-events-none" style={{ backgroundColor: GREEN, opacity: 0.12 }} animate={{ scale: [1,1.3,1], opacity: [0.12,0.22,0.12] }} transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }} />
         <motion.div className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full blur-3xl pointer-events-none" style={{ backgroundColor: ORANGE, opacity: 0.12 }} animate={{ scale: [1,1.4,1], opacity: [0.12,0.25,0.12] }} transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }} />
@@ -113,7 +112,7 @@ export function ActivitiesSection() {
               <div className="w-16 h-16 border-4 rounded-full animate-spin" style={{ borderColor: GREEN, borderTopColor: 'transparent' }} />
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-8 max-w-5xl mx-auto justify-items-center">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-8 max-w-5xl mx-auto justify-items-center">
               {displayedActivities.map((activity, index) => {
                 const isExpanded = expandedCard === activity.id;
                 return (
@@ -153,7 +152,7 @@ export function ActivitiesSection() {
   );
 }
 
-// ── Rond activité (modifié avec info et repositionnement) ─────────────────────
+// ── Rond activité (version responsive) ─────────────────────────────────────────
 
 const ActivityRond = React.forwardRef<HTMLDivElement, {
   activity: any; index: number;
@@ -162,9 +161,21 @@ const ActivityRond = React.forwardRef<HTMLDivElement, {
   onClick: (e: React.MouseEvent | React.TouchEvent) => void;
   onSatelliteClick: () => void;
 }>(({ activity, index, isExpanded, isTouch, onExpand, onCollapse, onClick, onSatelliteClick }, ref) => {
-  // Récupérer une description courte (si disponible)
-  const description = activity.description || activity.excerpt || "Découvrez cette activité unique.";
-  const shortDesc = description.length > 80 ? description.substring(0, 80) + '…' : description;
+
+  // Nombre de participants (WordPress)
+  const participants =
+    activity.maxParticipants ??
+    activity.participants ??
+    activity.nbParticipants ??
+    null;
+
+  // Classes adaptatives : taille du cercle et position des bulles
+  const circleSize = 'w-36 h-36 md:w-56 md:h-56'; // mobile : 144px, desktop : 224px
+  const mainBubbleTop = '-top-40 md:-top-56';
+  const leftBubbleLeft = '-left-20 md:-left-28';
+  const rightBubbleRight = '-right-20 md:-right-28';
+  const leftBubbleTranslate = '-translate-x-16 md:-translate-x-24';
+  const rightBubbleTranslate = 'translate-x-16 md:translate-x-24';
 
   return (
     <motion.div
@@ -174,14 +185,14 @@ const ActivityRond = React.forwardRef<HTMLDivElement, {
       viewport={{ once: true }}
       transition={{ delay: index * 0.08, duration: 0.5 }}
       className="relative"
-      style={{ zIndex: isExpanded ? 50 : 1, width: '240px', height: '240px' }}
+      style={{ zIndex: isExpanded ? 50 : 1, width: 'auto', height: 'auto' }}
       onMouseEnter={() => !isTouch && onExpand()}
       onMouseLeave={() => !isTouch && onCollapse()}
       onClick={onClick}
     >
       {/* Rond principal */}
       <motion.div
-        className="relative w-full h-full rounded-full overflow-hidden border-2 border-white/20 cursor-pointer"
+        className={`relative ${circleSize} rounded-full overflow-hidden border-2 border-white/20 cursor-pointer`}
         style={{ boxShadow: isExpanded ? `0 0 40px ${GREEN}40` : 'none' }}
         animate={isExpanded ? { scale: 1.1 } : { scale: 1 }}
         transition={{ duration: 0.3, ease: 'easeOut' }}
@@ -190,13 +201,12 @@ const ActivityRond = React.forwardRef<HTMLDivElement, {
           <img src={activity.image} alt={activity.name} className="w-full h-full object-cover" style={{ transform: isExpanded ? 'scale(1.15)' : 'scale(1)', transition: 'transform 0.5s ease' }} />
           <div className="absolute inset-0" style={{ background: `linear-gradient(135deg, ${GREEN}dd 0%, ${GREEN}bb 50%, ${GREEN}dd 100%)` }} />
         </div>
-        <div className="relative h-full flex flex-col items-center justify-center text-center px-4 gap-2">
-          <span className="text-4xl mb-1">{activity.emoji}</span>
-          <h3 className="text-white font-black text-base leading-tight">{activity.name}</h3>
-          {/* Âge et durée retirés du cercle principal */}
+        <div className="relative h-full flex flex-col items-center justify-center text-center px-2 md:px-4 gap-1 md:gap-2">
+          <span className="text-2xl md:text-4xl mb-0 md:mb-1">{activity.emoji}</span>
+          <h3 className="text-white font-black text-xs md:text-base leading-tight">{activity.name}</h3>
           {isTouch && (
-            <div className="absolute bottom-2 right-2 w-6 h-6 rounded-full bg-white/30 flex items-center justify-center">
-              <ChevronRight className="size-3 text-white" />
+            <div className="absolute bottom-1 right-1 md:bottom-2 md:right-2 w-4 h-4 md:w-6 md:h-6 rounded-full bg-white/30 flex items-center justify-center">
+              <ChevronRight className="size-2 md:size-3 text-white" />
             </div>
           )}
         </div>
@@ -206,80 +216,68 @@ const ActivityRond = React.forwardRef<HTMLDivElement, {
       <AnimatePresence>
         {isExpanded && (
           <>
-            {/* Bulle principale (informations générales) */}
+            {/* Bulle principale : Participants + bouton Voir l'activité */}
             <motion.div
               initial={{ opacity: 0, y: 10, scale: 0.85 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.85 }}
               transition={{ duration: 0.2 }}
-              className="absolute -top-48 left-1/2 -translate-x-1/2 bg-white rounded-3xl shadow-2xl w-64 overflow-hidden cursor-pointer"
-              style={{ border: `3px solid ${GREEN}`, boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }}
+              className={`absolute ${mainBubbleTop} left-1/2 -translate-x-1/2 bg-white rounded-2xl md:rounded-3xl shadow-2xl w-56 md:w-64 overflow-hidden cursor-pointer`}
+              style={{ border: `3px solid ${ORANGE}`, boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }}
               onClick={(e) => { e.stopPropagation(); onSatelliteClick(); }}
               onMouseEnter={() => !isTouch && onExpand()}
             >
-              <div className="px-4 py-3 flex items-center gap-2" style={{ background: `linear-gradient(135deg, ${GREEN}, ${GREEN}cc)` }}>
-                <Info className="size-5 text-white" />
-                <span className="text-white font-black text-sm">À propos</span>
+              <div className="px-3 md:px-4 py-2 md:py-3 flex items-center gap-2" style={{ background: `linear-gradient(135deg, ${ORANGE}, ${ORANGE}cc)` }}>
+                <Users className="size-4 md:size-5 text-white" />
+                <span className="text-white font-black text-xs md:text-sm">Participants</span>
               </div>
-              <div className="p-4">
-                <p className="text-sm text-gray-700">{shortDesc}</p>
-                <div className="mt-3 flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-white text-xs font-bold" style={{ backgroundColor: GREEN }}>
+              <div className="p-3 md:p-4 text-center">
+                <div className="text-2xl md:text-3xl font-black" style={{ color: ORANGE }}>
+                  {participants || '?'}
+                </div>
+                <div className="text-xs md:text-sm text-gray-600">
+                  {participants ? 'personnes max.' : 'nous consulter'}
+                </div>
+                <div className="mt-2 md:mt-3 flex items-center justify-center gap-2 w-full py-2 rounded-xl text-white text-xs font-bold" style={{ backgroundColor: ORANGE }}>
                   Voir l'activité <ArrowRight className="size-3" />
                 </div>
               </div>
             </motion.div>
 
-            {/* Durée (gauche) – repositionnée un peu plus loin */}
+            {/* Bulle gauche — Durée */}
             {activity.duration && (
               <motion.div
                 initial={{ opacity: 0, x: 10, scale: 0.8 }}
                 animate={{ opacity: 1, x: 0, scale: 1 }}
                 exit={{ opacity: 0, x: 10, scale: 0.8 }}
                 transition={{ duration: 0.2, delay: 0.05 }}
-                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-24 bg-white rounded-2xl shadow-xl px-4 py-3 cursor-pointer"
-                style={{ border: `3px solid ${ORANGE}`, minWidth: '100px' }}
+                className={`absolute left-0 top-1/2 -translate-y-1/2 ${leftBubbleLeft} ${leftBubbleTranslate} bg-white rounded-xl md:rounded-2xl shadow-xl px-2 md:px-4 py-2 md:py-3 cursor-pointer`}
+                style={{ border: `3px solid ${ORANGE}`, minWidth: '70px', maxWidth: '90px' }}
                 onClick={(e) => { e.stopPropagation(); onSatelliteClick(); }}
               >
                 <div className="text-center">
-                  <Clock className="size-5 mx-auto mb-1" style={{ color: ORANGE }} />
-                  <div className="text-sm font-black" style={{ color: ORANGE }}>Durée</div>
-                  <div className="text-xs text-gray-600 font-bold">{activity.duration}</div>
+                  <Clock className="size-4 md:size-5 mx-auto mb-0 md:mb-1" style={{ color: ORANGE }} />
+                  <div className="text-xs md:text-sm font-black" style={{ color: ORANGE }}>Durée</div>
+                  <div className="text-[10px] md:text-xs text-gray-600 font-bold truncate">{activity.duration}</div>
                 </div>
               </motion.div>
             )}
 
-            {/* Âge (droite) – repositionnée un peu plus loin */}
+            {/* Bulle droite — Âge min. */}
             {activity.minAge && (
               <motion.div
                 initial={{ opacity: 0, x: -10, scale: 0.8 }}
                 animate={{ opacity: 1, x: 0, scale: 1 }}
                 exit={{ opacity: 0, x: -10, scale: 0.8 }}
                 transition={{ duration: 0.2, delay: 0.1 }}
-                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-24 bg-white rounded-2xl shadow-xl px-4 py-3 cursor-pointer"
-                style={{ border: `3px solid ${GREEN}`, minWidth: '100px' }}
+                className={`absolute right-0 top-1/2 -translate-y-1/2 ${rightBubbleRight} ${rightBubbleTranslate} bg-white rounded-xl md:rounded-2xl shadow-xl px-2 md:px-4 py-2 md:py-3 cursor-pointer`}
+                style={{ border: `3px solid ${GREEN}`, minWidth: '70px', maxWidth: '90px' }}
                 onClick={(e) => { e.stopPropagation(); onSatelliteClick(); }}
               >
                 <div className="text-center">
-                  <Users className="size-5 mx-auto mb-1" style={{ color: GREEN }} />
-                  <div className="text-sm font-black" style={{ color: GREEN }}>Âge min.</div>
-                  <div className="text-xs text-gray-600 font-bold">{activity.minAge}+ ans</div>
-                </div>
-              </motion.div>
-            )}
-
-            {/* Badge mobile */}
-            {isTouch && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                transition={{ duration: 0.2, delay: 0.15 }}
-                className="absolute -bottom-12 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-sm rounded-full shadow-lg px-4 py-2 cursor-pointer whitespace-nowrap"
-                style={{ border: `2px solid ${GREEN}` }}
-                onClick={(e) => { e.stopPropagation(); onSatelliteClick(); }}
-              >
-                <div className="flex items-center gap-2 text-xs font-black" style={{ color: GREEN }}>
-                  <span>👆</span><span>Appuyez pour voir l'activité</span>
+                  <Users className="size-4 md:size-5 mx-auto mb-0 md:mb-1" style={{ color: GREEN }} />
+                  <div className="text-xs md:text-sm font-black" style={{ color: GREEN }}>Âge min.</div>
+                  <div className="text-[10px] md:text-xs text-gray-600 font-bold">{activity.minAge}+ ans</div>
                 </div>
               </motion.div>
             )}
