@@ -7,6 +7,7 @@ import {
   PartyPopper, PanelRightClose, PanelRightOpen,
   Star,
 } from 'lucide-react';
+import { useSiteConfig } from '../hooks/useSiteConfig';
 import { ParkStatusBadge } from './ParkStatusBadge';
 import { 
   FaFacebookF, 
@@ -23,7 +24,7 @@ const GREEN  = '#357600';
 const ORANGE = '#eb700f';
 
 // Réseaux sociaux - 1 ligne avec icônes officielles
-const socialLinks = [
+const DEFAULT_SIDEBAR_SOCIAL = [
   { icon: FaFacebookF, label: 'Facebook', handle: '@nolimitparc', color: '#1877F2' },
   { icon: FaInstagram, label: 'Instagram', handle: '@nolimitparc', color: '#E4405F' },
   { icon: FaTiktok, label: 'TikTok', handle: '@nolimitparc', color: '#000000' },
@@ -38,6 +39,8 @@ const reviewLinks = [
 ];
 
 export function ParkSidebar({ park }: { park: any }) {
+  const { config } = useSiteConfig();
+  const socialLinks = DEFAULT_SIDEBAR_SOCIAL;
   const [collapsed, setCollapsed]   = useState(false);
   const [topOffset, setTopOffset]   = useState(96);
   const [maxHeight, setMaxHeight]   = useState('calc(100vh - 6rem)');
@@ -45,19 +48,37 @@ export function ParkSidebar({ park }: { park: any }) {
 
   useEffect(() => {
     const update = () => {
+      // Position du header + navbar
       const anchorMenuBottom = 80 + 48;
       setTopOffset(anchorMenuBottom + 8);
 
+      // Calcul dynamique de la hauteur max disponible
       const footer = document.querySelector('footer') as HTMLElement | null;
+      const viewportHeight = window.innerHeight;
+      const sidebarTop = anchorMenuBottom + 8;
+      
+      // Buffer inférieur (padding avant le footer)
+      const bottomBuffer = 24;
+      
+      let available: number;
+      
       if (footer) {
-        const footerTop    = footer.getBoundingClientRect().top + window.scrollY;
-        const sidebarTop   = anchorMenuBottom + 8;
-        const available    = footerTop - sidebarTop - 24;
-        setMaxHeight(`${Math.max(300, available)}px`);
+        // Si un footer est présent, calculer par rapport à lui
+        const footerTop = footer.getBoundingClientRect().top + window.scrollY;
+        available = Math.max(300, footerTop - sidebarTop - bottomBuffer);
+      } else {
+        // Sinon, utiliser la hauteur du viewport avec un padding
+        // On retire la position du top et on laisse 40px de marge inférieure
+        available = viewportHeight - sidebarTop - bottomBuffer;
       }
+
+      // Assurer un minimum et un maximum raisonnable
+      const finalHeight = Math.max(300, Math.min(available, viewportHeight - sidebarTop - bottomBuffer));
+      setMaxHeight(`${finalHeight}px`);
     };
 
     update();
+    // Écouter scroll et resize
     window.addEventListener('scroll', update, { passive: true });
     window.addEventListener('resize', update);
     return () => {
@@ -116,7 +137,7 @@ export function ParkSidebar({ park }: { park: any }) {
         top: topOffset,
         width: collapsed ? '3rem' : '20rem',
         transition: 'width 0.35s cubic-bezier(0.4, 0, 0.2, 1)',
-        maxHeight: `calc(100vh - ${topOffset + 24}px)`,
+        maxHeight: maxHeight,
       }}
     >
       {/* ── Bouton toggle — bien visible, orange quand ouvert / vert quand réduit ── */}
@@ -150,8 +171,12 @@ export function ParkSidebar({ park }: { park: any }) {
             initial="collapsed"
             animate="expanded"
             exit="collapsed"
-            className="overflow-y-auto space-y-4 pr-1 pb-6"
-            style={{ maxHeight, scrollbarWidth: 'thin' }}
+            className="overflow-y-auto space-y-4 pr-2 pb-6"
+            style={{ 
+              maxHeight: maxHeight,
+              scrollbarWidth: 'thin',
+              scrollbarColor: `${GREEN}30 transparent`
+            }}
           >
             {/* ── Fond décoratif vert derrière le premier bloc ── */}
             <motion.div
@@ -166,7 +191,7 @@ export function ParkSidebar({ park }: { park: any }) {
               <div className="p-6">
                 {/* Status badge */}
                 <div className="flex justify-center mb-6">
-                  <ParkStatusBadge parkSlug={park.id} size="lg" />
+                  <ParkStatusBadge parkId={park.id} size="lg" />
                 </div>
 
                 <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} className="mb-2">

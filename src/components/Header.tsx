@@ -362,7 +362,7 @@ export function Header() {
 
             <div className="flex items-center justify-between h-20 px-4 relative z-10">
               <Link to="/" onClick={() => setIsMenuOpen(false)}>
-                <motion.img src={logo?.url || nolimitLogoFallback} alt={logo?.alt || 'NoLimit Aventure'} className="h-12 w-auto brightness-0 invert" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1, duration: 0.4 }} />
+                <motion.img src={logo?.url || nolimitLogoFallback} alt={logo?.alt || 'NoLimit Aventure'} className="h-12" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1, duration: 0.4 }} />
               </Link>
               <motion.button onClick={() => { setIsMenuOpen(false); setActiveMobileSubmenu(null); }} className="w-12 h-12 rounded-full flex items-center justify-center bg-white/10 hover:bg-white/20 transition-colors" whileTap={{ scale: 0.9 }} initial={{ opacity: 0, rotate: -90 }} animate={{ opacity: 1, rotate: 0 }} transition={{ delay: 0.15, duration: 0.3 }}>
                 <X className="size-6 text-white" />
@@ -461,11 +461,11 @@ interface PourQuiDataType {
 function MegaMenuDiscover({ primaryColor, secondaryColor }: { primaryColor: string; secondaryColor: string }) {
   const links = [
     { to: '/about', icon: Sparkles, label: 'Notre Histoire', desc: 'Découvrez nos origines' },
-    { to: '/values', icon: Heart, label: 'Nos Valeurs', desc: 'Notre ADN et engagement' },
-    { to: '/parks', icon: MapPin, label: 'Nos Parcs', desc: '5 destinations uniques' },
-    { to: '/jobs', icon: Briefcase, label: 'Nos Emplois', desc: "Rejoignez l'aventure" },
-    { to: '/news', icon: Sparkles, label: 'Actualités', desc: 'Les dernières news' },
-    { to: '/partners', icon: Users, label: 'Nos Partenaires', desc: 'Ils nous font confiance' },
+    { to: '/about/valeurs', icon: Heart, label: 'Nos Valeurs', desc: 'Notre ADN et engagement' },
+    { to: '/about/parcs', icon: MapPin, label: 'Nos Parcs', desc: '5 destinations uniques' },
+    { to: '/about/emplois', icon: Briefcase, label: 'Nos Emplois', desc: "Rejoignez l'aventure" },
+    { to: '/about/actualites', icon: Sparkles, label: 'Actualités', desc: 'Les dernières news' },
+    { to: '/about/partenaires', icon: Users, label: 'Nos Partenaires', desc: 'Ils nous font confiance' },
   ];
   return (
     <div className="grid grid-cols-3 gap-6 p-8">
@@ -638,11 +638,11 @@ function MegaMenuPrepare({ primaryColor, secondaryColor }: { primaryColor: strin
 function MobileMegaMenuDiscover({ onClose }: { onClose: () => void }) {
   const links = [
     { to: '/about', icon: Sparkles, label: 'Notre Histoire', desc: 'Découvrez nos origines' },
-    { to: '/values', icon: Heart, label: 'Nos Valeurs', desc: 'Notre ADN et engagement' },
-    { to: '/parks', icon: MapPin, label: 'Nos Parcs', desc: '5 destinations uniques' },
-    { to: '/jobs', icon: Briefcase, label: 'Nos Emplois', desc: "Rejoignez l'aventure" },
-    { to: '/news', icon: Sparkles, label: 'Actualités', desc: 'Les dernières news' },
-    { to: '/partners', icon: Users, label: 'Nos Partenaires', desc: 'Ils nous font confiance' },
+    { to: '/about/valeurs', icon: Heart, label: 'Nos Valeurs', desc: 'Notre ADN et engagement' },
+    { to: '/about/parcs', icon: MapPin, label: 'Nos Parcs', desc: '5 destinations uniques' },
+    { to: '/about/emplois', icon: Briefcase, label: 'Nos Emplois', desc: "Rejoignez l'aventure" },
+    { to: '/about/actualites', icon: Sparkles, label: 'Actualités', desc: 'Les dernières news' },
+    { to: '/about/partenaires', icon: Users, label: 'Nos Partenaires', desc: 'Ils nous font confiance' },
   ];
   return (
     <div className="divide-y divide-white/10">
