@@ -12,6 +12,7 @@ import { ActualitesSection } from '../components/home/ActualitesSection';
 import { ActivitiesSection } from '../components/home/ActivitiesSection';
 import { TestimonialsSection } from '../components/home/TestimonialsSection';
 import { useHeroData } from '../hooks/useHeroData';
+import { TextBlocSection } from '../components/home/TextBlocSection';
 
 
 // Mapping des noms d'icônes Lucide vers les composants
@@ -196,6 +197,8 @@ export function HomePage() {
           </motion.div>
         )}
       </section>
+
+      <TextBlocSection />
 
       {/* ════════════════════════════════════════
           SECTION 2 : PARCS

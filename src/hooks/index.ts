@@ -10,7 +10,7 @@ export { useActualitesData, defaultActualitesData } from './useActualitesData';
 export { useNewsletterData, defaultNewsletterData } from './useNewsletterData';
 export { useParksData, defaultParks } from './useParksData';
 export { useReviewsData, defaultReviews } from './useReviewsData';
-export { useStatsData, defaultStatsData } from './useStatsData';
+
 
 // ─── Hooks v8 ──────────────────────────────────────
 export { useAboutMain, useAboutHistory, useAboutValues, useAboutJobs, useAboutPartners } from './useAboutData';
@@ -26,7 +26,6 @@ export { useCalendarData, useAllCalendarsData, computeDayStatus } from './useCal
 // ─── Types réexportés ──────────────────────────────
 export type { Activity } from './useActiviesData';
 export type { ActivityWithTarifs, TarifGroupe, TarifLigne } from './useActiviesData';
-export type { StatItem, FeatureItem, StatsData } from './useStatsData';
 export type { BlogArticle, BlogData } from './useBlogData';
 export type { BookingConfig } from './useBookingData';
 export type { SiteConfig } from './useSiteConfig';

@@ -19,7 +19,7 @@ const defaultSiteConfig: SiteConfig = {
   anchorMenu: [
     { id: 'parcs', label: 'Parcs', section: 'parcs' },
     { id: 'activites', label: 'Activités', section: 'activites' },
-    { id: 'pourqui', label: 'Pour Qui', section: 'pourqui' },
+    { id: 'pour-qui', label: 'Pour Qui', section: 'pour-qui' },
     { id: 'actualites', label: 'Actualités', section: 'actualites' },
     { id: 'reserver', label: 'Réserver', section: 'reserver' },
   ],

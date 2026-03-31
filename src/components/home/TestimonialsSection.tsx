@@ -1,79 +1,26 @@
-// ============================================================
-// Nouveau fichier : components/home/TestimonialsSection.tsx
-// ============================================================
+// components/home/TestimonialsSection.tsx
 import { Star, Quote, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
 import { useRef, useState, useEffect } from 'react';
-import { ReviewCard } from '../ReviewCard';
+import { useReviewsData } from '../../hooks/useReviewsData';
 import { Review } from '../../types';
-import { defaultParks } from '../../hooks/useParksData';
 
-  
+// Hook personnalisé pour détecter la largeur d'écran
+function useMediaQuery(query: string) {
+  const [matches, setMatches] = useState(false);
 
+  useEffect(() => {
+    const media = window.matchMedia(query);
+    if (media.matches !== matches) setMatches(media.matches);
+    const listener = () => setMatches(media.matches);
+    media.addEventListener('change', listener);
+    return () => media.removeEventListener('change', listener);
+  }, [matches, query]);
 
-// ── données mock (à remplacer par un fetch WordPress) ────────
-const MOCK_REVIEWS: Review[] = [
-  {
-    id: '1',
-    author: 'Marie L.',
-    date: 'Janvier 2025',
-    rating: 5,
-    comment: 'Une journée absolument incroyable avec mes enfants ! Les moniteurs sont au top, on a adoré l\'accrobranche et le paintball. On reviendra sans hésiter.',
-    activity: 'Accrobranche',
-    avatar: '',
-  },
-  {
-    id: '2',
-    author: 'Thomas R.',
-    date: 'Décembre 2024',
-    rating: 5,
-    comment: 'Parfait pour un team building d\'entreprise. L\'équipe NoLimit a su adapter les activités pour notre groupe de 25 personnes. Tout le monde est reparti avec le sourire.',
-    activity: 'Paintball',
-    avatar: '',
-  },
-  {
-    id: '3',
-    author: 'Sophie & Marc',
-    date: 'Novembre 2024',
-    rating: 4,
-    comment: 'Super expérience pour notre anniversaire de mariage. Le parcours filet géant était spectaculaire. Seul bémol : la file d\'attente un peu longue le week-end.',
-    park: 'Parc Bordeaux',
-    activity: 'Parcours Filet',
-    avatar: '',
-  },
-  {
-    id: '4',
-    author: 'Lucas B.',
-    date: 'Octobre 2024',
-    rating: 5,
-    comment: 'L\'escape game outdoor était une révélation ! Jamais vu ça ailleurs. La mise en scène est bluffante et les énigmes vraiment bien pensées. BRAVO !',
-    park: 'Parc Paris',
-    activity: 'Escape Game',
-    avatar: '',
-  },
-  {
-    id: '5',
-    author: 'Camille D.',
-    date: 'Septembre 2024',
-    rating: 5,
-    comment: 'Mes enfants de 7 et 10 ans ont vécu leur meilleure journée de vacances ici. Le personnel est bienveillant, les parcours adaptés à tous les niveaux. Magique !',
-    park: 'Parc Toulouse',
-    activity: 'Accrobranche',
-    avatar: '',
-  },
-  {
-    id: '6',
-    author: 'Alexis M.',
-    date: 'Août 2024',
-    rating: 5,
-    comment: 'Archery Tag : une activité que je recommande à 100% ! Adrénaline garantie. Les équipements sont en parfait état et les règles bien expliquées.',
-    park: 'Parc Lyon',
-    activity: 'Archery Tag',
-    avatar: '',
-  },
-];
+  return matches;
+}
 
-// ── ReviewCard améliorée (si tu veux remplacer l'existante) ──
+// Composant d'une carte d'avis (inchangé, mais accepte review de type Review)
 function EnhancedReviewCard({ review, index }: { review: Review; index: number }) {
   const initials = review.author
     .split(' ')
@@ -82,7 +29,6 @@ function EnhancedReviewCard({ review, index }: { review: Review; index: number }
     .toUpperCase()
     .slice(0, 2);
 
-  // Couleurs d'avatar cycliques harmonisées avec la charte
   const avatarColors = [
     { bg: '#357600', text: '#ffffff' },
     { bg: '#eb700f', text: '#ffffff' },
@@ -92,6 +38,11 @@ function EnhancedReviewCard({ review, index }: { review: Review; index: number }
     { bg: '#ff8c2a', text: '#ffffff' },
   ];
   const color = avatarColors[index % avatarColors.length];
+
+  // Utiliser l'avatar si c'est un émoji ou une image
+  const displayAvatar = review.avatar && typeof review.avatar === 'string' && review.avatar.length <= 2
+    ? review.avatar
+    : null;
 
   return (
     <motion.div
@@ -107,20 +58,14 @@ function EnhancedReviewCard({ review, index }: { review: Review; index: number }
         backdropFilter: 'blur(12px)',
       }}
     >
-      {/* Barre colorée en haut */}
       <div
         className="h-1 w-full"
         style={{ background: `linear-gradient(to right, ${color.bg}, #eb700f)` }}
       />
 
       <div className="flex flex-col flex-1 p-6">
-        {/* Guillemet décoratif */}
-        <Quote
-          className="size-8 mb-3 opacity-20"
-          style={{ color: color.bg }}
-        />
+        <Quote className="size-8 mb-3 opacity-20" style={{ color: color.bg }} />
 
-        {/* Étoiles */}
         <div className="flex gap-0.5 mb-4">
           {[...Array(5)].map((_, i) => (
             <Star
@@ -130,36 +75,38 @@ function EnhancedReviewCard({ review, index }: { review: Review; index: number }
           ))}
         </div>
 
-        {/* Commentaire */}
         <p className="text-white/80 leading-relaxed flex-1 text-sm mb-6">
           "{review.comment}"
         </p>
 
-        {/* Footer : auteur + activité */}
         <div className="flex items-center justify-between mt-auto pt-4"
           style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}
         >
           <div className="flex items-center gap-3">
-            {/* Avatar initiales */}
-            <div
-              className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-black shadow-md flex-shrink-0"
-              style={{ backgroundColor: color.bg, color: color.text }}
-            >
-              {initials}
-            </div>
+            {displayAvatar ? (
+              <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-xl">
+                {displayAvatar}
+              </div>
+            ) : (
+              <div
+                className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-black shadow-md flex-shrink-0"
+                style={{ backgroundColor: color.bg, color: color.text }}
+              >
+                {initials}
+              </div>
+            )}
             <div>
               <p className="text-white font-bold text-sm leading-tight">{review.author}</p>
               <p className="text-white/40 text-xs">{review.date}</p>
             </div>
           </div>
 
-          {/* Badge activité */}
-          {review.activity && (
+          {review.parkName && (
             <span
               className="px-2 py-1 rounded-full text-[10px] font-semibold flex-shrink-0"
               style={{ backgroundColor: `${color.bg}25`, color: color.bg === '#eb700f' ? '#ff9a3c' : '#7acc00' }}
             >
-              {review.activity}
+              {review.parkName}
             </span>
           )}
         </div>
@@ -168,18 +115,44 @@ function EnhancedReviewCard({ review, index }: { review: Review; index: number }
   );
 }
 
-// ── Composant principal ──────────────────────────────────────
 export function TestimonialsSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-80px' });
   const [page, setPage] = useState(0);
 
-  const CARDS_PER_PAGE = 3;
-  const totalPages = Math.ceil(MOCK_REVIEWS.length / CARDS_PER_PAGE);
-  const visibleReviews = MOCK_REVIEWS.slice(page * CARDS_PER_PAGE, page * CARDS_PER_PAGE + CARDS_PER_PAGE);
+  // Récupération des avis réels
+  const { reviews, loading, error, stats } = useReviewsData();
 
-  // Score agrégé
-  const avgRating = (MOCK_REVIEWS.reduce((sum, r) => sum + r.rating, 0) / MOCK_REVIEWS.length).toFixed(1);
+  // Nombre de cartes par page selon la taille d'écran
+  const isMobile = useMediaQuery('(max-width: 767px)');
+  const isTablet = useMediaQuery('(min-width: 768px) and (max-width: 1023px)');
+  const CARDS_PER_PAGE = isMobile ? 1 : isTablet ? 2 : 3;
+
+  const totalPages = Math.ceil(reviews.length / CARDS_PER_PAGE);
+  const visibleReviews = reviews.slice(page * CARDS_PER_PAGE, page * CARDS_PER_PAGE + CARDS_PER_PAGE);
+
+  // Réinitialiser la page quand le nombre de cartes par page change
+  useEffect(() => {
+    setPage(0);
+  }, [CARDS_PER_PAGE]);
+
+  // Calcul du score agrégé (fallback si pas encore chargé)
+  const avgRating = reviews.length > 0
+    ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
+    : '0';
+
+  // Si chargement, afficher un spinner
+  if (loading) {
+    return (
+      <section ref={ref} className="relative py-24 overflow-hidden" style={{ backgroundColor: '#111111' }}>
+        <div className="container mx-auto px-4 text-center">
+          <div className="flex justify-center py-20">
+            <div className="w-16 h-16 border-4 rounded-full animate-spin" style={{ borderColor: '#eb700f', borderTopColor: 'transparent' }} />
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section
@@ -187,7 +160,7 @@ export function TestimonialsSection() {
       className="relative py-24 overflow-hidden"
       style={{ backgroundColor: '#111111' }}
     >
-      {/* ── Fond animé ── */}
+      {/* Fond décoratif */}
       <div
         className="absolute inset-0 opacity-[0.03]"
         style={{
@@ -209,15 +182,13 @@ export function TestimonialsSection() {
       />
 
       <div className="container mx-auto px-4 relative z-10">
-
-        {/* ── Header ── */}
+        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
           className="text-center mb-14"
         >
-          {/* Badge */}
           <motion.div
             initial={{ scale: 0 }}
             animate={isInView ? { scale: 1 } : {}}
@@ -243,7 +214,6 @@ export function TestimonialsSection() {
             </span>
           </h2>
 
-          {/* Score agrégé */}
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={isInView ? { opacity: 1, scale: 1 } : {}}
@@ -257,11 +227,11 @@ export function TestimonialsSection() {
               ))}
             </div>
             <span className="text-3xl font-black text-white">{avgRating}</span>
-            <span className="text-white/40 text-sm">/ 5 · {MOCK_REVIEWS.length} avis</span>
+            <span className="text-white/40 text-sm">/ 5 · {reviews.length} avis</span>
           </motion.div>
         </motion.div>
 
-        {/* ── Grille de cards ── */}
+        {/* Grille d'avis (avec animation) */}
         <AnimatePresence mode="wait">
           <motion.div
             key={page}
@@ -277,7 +247,7 @@ export function TestimonialsSection() {
           </motion.div>
         </AnimatePresence>
 
-        {/* ── Pagination ── */}
+        {/* Pagination */}
         {totalPages > 1 && (
           <div className="flex items-center justify-center gap-4 mt-10">
             <motion.button
@@ -295,7 +265,6 @@ export function TestimonialsSection() {
               <ChevronLeft className="size-5" />
             </motion.button>
 
-            {/* Dots */}
             <div className="flex gap-2">
               {[...Array(totalPages)].map((_, i) => (
                 <motion.button
@@ -325,7 +294,7 @@ export function TestimonialsSection() {
           </div>
         )}
 
-        {/* ── CTA laisser un avis ── */}
+        {/* CTA laisser un avis */}
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}

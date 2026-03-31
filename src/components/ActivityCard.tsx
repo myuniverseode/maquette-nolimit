@@ -110,17 +110,7 @@ export function ActivityCard({ activity, index = 0 }: ActivityCardProps) {
 
           {/* Contenu centré */}
           <div className="relative h-full flex flex-col items-center justify-center text-center p-6">
-            {/* Emoji animé */}
-            <motion.div
-              animate={{
-                rotate: isHovered ? [0, -10, 10, 0] : 0,
-                scale: isHovered ? 1.2 : 1,
-              }}
-              transition={{ duration: 0.5 }}
-              className="text-5xl mb-3"
-            >
-              {emoji}
-            </motion.div>
+          
 
             {/* Nom de l'activité */}
             <h3
@@ -155,15 +145,7 @@ export function ActivityCard({ activity, index = 0 }: ActivityCardProps) {
               </div>
             </div>
 
-            {/* Prix (fourchette) */}
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
-              <span
-                className="px-3 py-1 backdrop-blur-sm rounded-full text-xs text-white font-bold"
-                style={{ backgroundColor: 'rgb(210, 124, 4)' }}
-              >
-                {formatPriceRange()}
-              </span>
-            </div>
+         
           </div>
 
           {/* Hover overlay avec emoji flouté et texte "En savoir plus" */}

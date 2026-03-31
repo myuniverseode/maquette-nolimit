@@ -132,18 +132,7 @@ export function ParksList({
               </span>
             </div>
 
-            <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-3 py-2 shadow-sm">
-              <ArrowDownUp className="size-4 text-gray-400" />
-              <select
-                value={sortBy}
-                onChange={e => setSortBy(e.target.value as 'price' | 'rating' | 'name')}
-                className="text-sm font-semibold text-gray-700 bg-transparent focus:outline-none cursor-pointer"
-              >
-                <option value="rating">Meilleures notes</option>
-                <option value="price">Prix croissant</option>
-                <option value="name">Nom (A–Z)</option>
-              </select>
-            </div>
+         
           </div>
 
           {/* ── Grille / bulles ── */}
@@ -152,7 +141,7 @@ export function ParksList({
               // MODE BULLES
               <div className="flex flex-wrap justify-center gap-6 items-center">
                 {displayedParks.map((park, i) => (
-                  <div key={park.id} style={{ marginTop: i % 2 === 0 ? '0' : '2rem' }}>
+                  <div key={park.id}>
                     <ParkCard park={park} index={i} compact primaryColor={primaryColor} secondaryColor={secondaryColor} />
                   </div>
                 ))}

@@ -15,7 +15,7 @@ const iconMap: { [key: string]: React.ReactNode } = {
 function EventCard({ card, index, raiseContent = false }: { card: any; index: number; raiseContent?: boolean }) {
   return (
     <Link to={card.link} className="block group">
-      <div className="relative h-80 md:h-96 rounded-2xl overflow-hidden shadow-xl">
+      <div className="relative h-56 md:h-96 rounded-2xl overflow-hidden shadow-xl">
         <div className="absolute inset-0">
           <img
             src={card.image}
@@ -25,9 +25,9 @@ function EventCard({ card, index, raiseContent = false }: { card: any; index: nu
           />
         </div>
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20" />
-        <div className={`absolute inset-0 flex flex-col justify-end p-8 ${raiseContent ? 'pb-44' : ''}`}>
+        <div className={`absolute inset-0 flex flex-col justify-end p-4 md:p-8 ${raiseContent ? 'pb-24 md:pb-44' : ''}`}>
           <motion.div
-            className="mb-4 p-3 rounded-full w-fit"
+            className="mb-4 p-2 md:p-3 rounded-full w-fit"
             style={{ backgroundColor: `${card.color}20` }}
             whileHover={{ scale: 1.1, rotate: 5 }}
           >
@@ -35,10 +35,10 @@ function EventCard({ card, index, raiseContent = false }: { card: any; index: nu
               {iconMap[card.iconName] || <Star className="size-8" />}
             </div>
           </motion.div>
-          <h3 className="text-3xl md:text-4xl font-black text-white mb-2 group-hover:translate-x-2 transition-transform duration-300">
+          <h3 className="text-2xl md:text-4xl font-black text-white mb-2 group-hover:translate-x-2 transition-transform duration-300">
             {card.title}
           </h3>
-          <p className="text-lg text-white/90 mb-4 group-hover:translate-x-2 transition-transform duration-300 delay-75">
+          <p className="text-xs md:text-lg text-white/90 mb-2 md:mb-4 group-hover:translate-x-2 transition-transform duration-300 delay-75">
             {card.description}
           </p>
           <div className="flex items-center gap-2 text-white font-semibold group-hover:gap-4 transition-all duration-300">
@@ -77,7 +77,6 @@ function CentralBubble({ className = '', isMobile = false }: { className?: strin
             style={{
               padding: '20px',
               background: 'rgb(247 248 248)',
-             
             }}
           >
             <div className="relative overflow-hidden w-80 h-80 rounded-full shadow-inner">

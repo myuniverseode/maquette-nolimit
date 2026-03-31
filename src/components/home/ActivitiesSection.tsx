@@ -5,7 +5,7 @@ import { X, ArrowRight, Zap, PartyPopper, ChevronRight, Clock, Users } from 'luc
 import { useActivitiesData, type TarifGroupe } from '../../hooks/useActiviesData';
 import { usePourQuiData } from '../../hooks/usePourQuiData';
 
-const GREEN  = '#357600';
+const GREEN  = '#357600';   // vert d'origine
 const ORANGE = '#eb700f';
 
 const POUR_QUI_FALLBACK = [
@@ -152,7 +152,7 @@ export function ActivitiesSection() {
   );
 }
 
-// ── Rond activité (version responsive) ─────────────────────────────────────────
+// ── Rond activité (bulles en escalier, filtre plus transparent) ─────────────
 
 const ActivityRond = React.forwardRef<HTMLDivElement, {
   activity: any; index: number;
@@ -162,20 +162,13 @@ const ActivityRond = React.forwardRef<HTMLDivElement, {
   onSatelliteClick: () => void;
 }>(({ activity, index, isExpanded, isTouch, onExpand, onCollapse, onClick, onSatelliteClick }, ref) => {
 
-  // Nombre de participants (WordPress)
   const participants =
     activity.maxParticipants ??
     activity.participants ??
     activity.nbParticipants ??
     null;
 
-  // Classes adaptatives : taille du cercle et position des bulles
-  const circleSize = 'w-36 h-36 md:w-56 md:h-56'; // mobile : 144px, desktop : 224px
-  const mainBubbleTop = '-top-40 md:-top-56';
-  const leftBubbleLeft = '-left-20 md:-left-28';
-  const rightBubbleRight = '-right-20 md:-right-28';
-  const leftBubbleTranslate = '-translate-x-16 md:-translate-x-24';
-  const rightBubbleTranslate = 'translate-x-16 md:translate-x-24';
+  const circleSize = 'w-36 h-36 md:w-56 md:h-56';
 
   return (
     <motion.div
@@ -185,7 +178,7 @@ const ActivityRond = React.forwardRef<HTMLDivElement, {
       viewport={{ once: true }}
       transition={{ delay: index * 0.08, duration: 0.5 }}
       className="relative"
-      style={{ zIndex: isExpanded ? 50 : 1, width: 'auto', height: 'auto' }}
+      style={{ zIndex: isExpanded ? 50 : 1 }}
       onMouseEnter={() => !isTouch && onExpand()}
       onMouseLeave={() => !isTouch && onCollapse()}
       onClick={onClick}
@@ -199,10 +192,11 @@ const ActivityRond = React.forwardRef<HTMLDivElement, {
       >
         <div className="absolute inset-0">
           <img src={activity.image} alt={activity.name} className="w-full h-full object-cover" style={{ transform: isExpanded ? 'scale(1.15)' : 'scale(1)', transition: 'transform 0.5s ease' }} />
-          <div className="absolute inset-0" style={{ background: `linear-gradient(135deg, ${GREEN}dd 0%, ${GREEN}bb 50%, ${GREEN}dd 100%)` }} />
+          {/* Filtre plus transparent : opacité 88 (environ 53%) */}
+          <div className="absolute inset-0" style={{ }} />
         </div>
         <div className="relative h-full flex flex-col items-center justify-center text-center px-2 md:px-4 gap-1 md:gap-2">
-          <span className="text-2xl md:text-4xl mb-0 md:mb-1">{activity.emoji}</span>
+        
           <h3 className="text-white font-black text-xs md:text-base leading-tight">{activity.name}</h3>
           {isTouch && (
             <div className="absolute bottom-1 right-1 md:bottom-2 md:right-2 w-4 h-4 md:w-6 md:h-6 rounded-full bg-white/30 flex items-center justify-center">
@@ -212,17 +206,17 @@ const ActivityRond = React.forwardRef<HTMLDivElement, {
         </div>
       </motion.div>
 
-      {/* Bulles satellites */}
+      {/* Bulles satellites en escalier */}
       <AnimatePresence>
         {isExpanded && (
           <>
-            {/* Bulle principale : Participants + bouton Voir l'activité */}
+            {/* Bulle principale : participants + CTA (haut) */}
             <motion.div
               initial={{ opacity: 0, y: 10, scale: 0.85 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.85 }}
               transition={{ duration: 0.2 }}
-              className={`absolute ${mainBubbleTop} left-1/2 -translate-x-1/2 bg-white rounded-2xl md:rounded-3xl shadow-2xl w-56 md:w-64 overflow-hidden cursor-pointer`}
+              className="absolute -top-16 left-1/2 -translate-x-1/2 bg-white rounded-2xl md:rounded-3xl shadow-2xl w-56 md:w-64 overflow-hidden cursor-pointer"
               style={{ border: `3px solid ${ORANGE}`, boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }}
               onClick={(e) => { e.stopPropagation(); onSatelliteClick(); }}
               onMouseEnter={() => !isTouch && onExpand()}
@@ -244,15 +238,15 @@ const ActivityRond = React.forwardRef<HTMLDivElement, {
               </div>
             </motion.div>
 
-            {/* Bulle gauche — Durée */}
+            {/* Bulle gauche — Durée (position haute : top-1/4) */}
             {activity.duration && (
               <motion.div
                 initial={{ opacity: 0, x: 10, scale: 0.8 }}
                 animate={{ opacity: 1, x: 0, scale: 1 }}
                 exit={{ opacity: 0, x: 10, scale: 0.8 }}
                 transition={{ duration: 0.2, delay: 0.05 }}
-                className={`absolute left-0 top-1/2 -translate-y-1/2 ${leftBubbleLeft} ${leftBubbleTranslate} bg-white rounded-xl md:rounded-2xl shadow-xl px-2 md:px-4 py-2 md:py-3 cursor-pointer`}
-                style={{ border: `3px solid ${ORANGE}`, minWidth: '70px', maxWidth: '90px' }}
+                className="absolute left-0 top-1/4 -translate-y-1/2 -translate-x-20 md:-translate-x-28 bg-white rounded-xl md:rounded-2xl shadow-xl px-2 md:px-4 py-2 md:py-3 cursor-pointer w-24 md:w-32"
+                style={{ border: `3px solid ${ORANGE}` }}
                 onClick={(e) => { e.stopPropagation(); onSatelliteClick(); }}
               >
                 <div className="text-center">
@@ -263,15 +257,15 @@ const ActivityRond = React.forwardRef<HTMLDivElement, {
               </motion.div>
             )}
 
-            {/* Bulle droite — Âge min. */}
+            {/* Bulle droite — Âge min. (position basse : top-3/4) */}
             {activity.minAge && (
               <motion.div
                 initial={{ opacity: 0, x: -10, scale: 0.8 }}
                 animate={{ opacity: 1, x: 0, scale: 1 }}
                 exit={{ opacity: 0, x: -10, scale: 0.8 }}
                 transition={{ duration: 0.2, delay: 0.1 }}
-                className={`absolute right-0 top-1/2 -translate-y-1/2 ${rightBubbleRight} ${rightBubbleTranslate} bg-white rounded-xl md:rounded-2xl shadow-xl px-2 md:px-4 py-2 md:py-3 cursor-pointer`}
-                style={{ border: `3px solid ${GREEN}`, minWidth: '70px', maxWidth: '90px' }}
+                className="absolute right-0 top-3/4 -translate-y-1/2 translate-x-20 md:translate-x-28 bg-white rounded-xl md:rounded-2xl shadow-xl px-2 md:px-4 py-2 md:py-3 cursor-pointer w-24 md:w-32"
+                style={{ border: `3px solid ${GREEN}` }}
                 onClick={(e) => { e.stopPropagation(); onSatelliteClick(); }}
               >
                 <div className="text-center">
@@ -289,7 +283,7 @@ const ActivityRond = React.forwardRef<HTMLDivElement, {
 });
 ActivityRond.displayName = 'ActivityRond';
 
-// ── Modale événement (inchangée) ───────────────────────────────────────────────
+// ── Modale événement (inchangée) ─────────────────────────────────────────────
 function EvenementModal({ cards, onClose }: { cards: typeof POUR_QUI_FALLBACK; onClose: () => void }) {
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: 'rgba(0,0,0,0.80)', backdropFilter: 'blur(8px)' }} onClick={onClose}>

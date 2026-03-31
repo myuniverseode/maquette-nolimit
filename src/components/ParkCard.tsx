@@ -174,7 +174,7 @@ function ActivitiesSatellite({
       animate={{ opacity: 1, x: 0, scale: 1 }}
       exit={{ opacity: 0, x: -10, scale: 0.8 }}
       transition={{ duration: 0.2, ease: 'easeOut', delay: 0.1 }}
-      className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-32 bg-white rounded-2xl shadow-xl p-4 cursor-pointer"
+      className="absolute right-0 top-2/3 -translate-y-1/2 translate-x-32 bg-white rounded-2xl shadow-xl p-4 cursor-pointer"
       style={{ border: `3px solid ${secondaryColor}`, width: '200px', willChange: 'transform, opacity' }}
       onClick={onNavigate}
     >
@@ -273,7 +273,7 @@ export function ParkCard({
           transition={{ duration: 0.3, ease: 'easeOut' }}
         >
           <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${park.image})` }} />
-          <div className="absolute inset-0" style={{ background: `linear-gradient(135deg, ${primaryColor}dd 0%, ${primaryColor}bb 50%, ${primaryColor}dd 100%)` }} />
+          <div className="absolute inset-0" style={{ }} />
           <div className="absolute top-8 left-8 w-24 h-24 bg-white/20 rounded-full blur-2xl" />
           <div className="relative z-10 text-center px-6 space-y-4">
             <motion.h3
@@ -303,21 +303,7 @@ export function ParkCard({
         <AnimatePresence>
           {isExpanded && (
             <>
-              {/* Haut gauche : Ville */}
-              <motion.div
-                initial={{ opacity: 0, y: 10, scale: 0.8 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 10, scale: 0.8 }}
-                transition={{ duration: 0.2, ease: 'easeOut' }}
-                className="absolute -top-16 left-0 -translate-x-4 bg-white rounded-2xl shadow-xl px-6 py-3 cursor-pointer"
-                style={{ border: `3px solid ${primaryColor}` }}
-                onClick={handleSatelliteClick}
-              >
-                <div className="flex items-center gap-2">
-                  <MapPin className="size-5 text-gray-700" />
-                  <span className="font-black text-gray-900">{cityName}</span>
-                </div>
-              </motion.div>
+            
 
               {/* Haut droite : Statut */}
               <StatusSatellite parkId={park.id} onNavigate={handleSatelliteClick} />
@@ -347,30 +333,7 @@ export function ParkCard({
                 secondaryColor={secondaryColor}
               />
 
-              {/* Bas : Note */}
-              <motion.div
-                initial={{ opacity: 0, y: -10, scale: 0.8 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -10, scale: 0.8 }}
-                transition={{ duration: 0.2, ease: 'easeOut', delay: 0.15 }}
-                className="absolute -bottom-20 left-1/2 -translate-x-1/2 bg-gradient-to-br from-orange-50 to-red-100 rounded-2xl shadow-xl px-6 py-4 cursor-pointer"
-                style={{ border: `3px solid ${secondaryColor}` }}
-                onClick={handleSatelliteClick}
-              >
-                <div className="flex items-center gap-4">
-                  <div className="text-center">
-                    <div className="text-3xl font-black flex items-center gap-1" style={{ color: secondaryColor }}>
-                      <Star className="size-6 fill-current" />{park.rating}
-                    </div>
-                    <div className="text-xs text-gray-600 font-bold">note moyenne</div>
-                  </div>
-                  <div className="h-12 w-px bg-gray-300" />
-                  <div className="text-xs text-gray-600 font-semibold">
-                    <div className="flex items-center gap-1 mb-1"><Clock className="size-3" /><span>Durée : 2h</span></div>
-                    <div className="flex items-center gap-1"><Users className="size-3" /><span>{minAge}+ ans</span></div>
-                  </div>
-                </div>
-              </motion.div>
+             
 
               {/* CTA */}
               <motion.div
@@ -378,7 +341,7 @@ export function ParkCard({
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.8 }}
                 transition={{ duration: 0.2, ease: 'easeOut', delay: 0.2 }}
-                className="absolute -bottom-32 left-1/2 -translate-x-1/2 bg-white rounded-full shadow-lg px-6 py-2 cursor-pointer whitespace-nowrap"
+                className="absolute -bottom-16 left-1/2 -translate-x-1/2 bg-white rounded-full shadow-lg px-6 py-2 cursor-pointer whitespace-nowrap"
                 style={{ border: `2px solid ${primaryColor}` }}
                 onClick={handleSatelliteClick}
               >

@@ -3,7 +3,7 @@
 
 export const API_URL =
   import.meta.env.VITE_NOLIMIT_API_URL ||
-  'https://www.preprod.nolimit-aventure.com/wp-json/nolimit/v1';
+  'https://www.preprod.nolimit-aventure.com/wordpress/wp-json/nolimit/v1';
 
 export const API_KEY =
   import.meta.env.VITE_NOLIMIT_API_KEY || '';

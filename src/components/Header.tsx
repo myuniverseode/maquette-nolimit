@@ -26,7 +26,7 @@ function DesktopNavLink({
       to={to}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      className="px-4 py-2 rounded-lg transition-all duration-200 text-sm"
+      className="px-3 xl:px-4 py-2 rounded-lg transition-all duration-200 text-sm whitespace-nowrap"
       style={{
         color: active ? secondaryColor : primaryColor,
         backgroundColor: hovered ? `${secondaryColor}15` : isActive ? `${primaryColor}12` : 'transparent',
@@ -50,7 +50,7 @@ function DesktopMegaButton({
     <button
       onMouseEnter={() => { setHovered(true); onMouseEnter?.(); }}
       onMouseLeave={() => { setHovered(false); onMouseLeave?.(); }}
-      className="flex items-center gap-1 px-4 py-2 rounded-lg transition-all duration-200 text-sm"
+      className="flex items-center gap-1 px-3 xl:px-4 py-2 rounded-lg transition-all duration-200 text-sm whitespace-nowrap"
       style={{
         color: active ? secondaryColor : primaryColor,
         backgroundColor: active ? `${secondaryColor}15` : 'transparent',
@@ -75,6 +75,7 @@ export function Header() {
   const location = useLocation();
   const navigate = useNavigate();
   const headerRef = useRef<HTMLDivElement>(null);
+  const megaMenuContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     document.body.style.overflow = isMenuOpen ? 'hidden' : '';
@@ -105,27 +106,27 @@ export function Header() {
   const mobileMenuBgDark = '#0D3B13';
   const isActive = (path: string) => location.pathname === path;
 
-  // ─── Fonction pour déterminer la valeur du select en fonction de l'URL ───
   const getCurrentParkValue = () => {
     const currentPath = location.pathname;
-    
-    // Si on est sur la page d'accueil, retourner "Tous les parcs"
-    if (currentPath === '/') {
-      return '';
-    }
-    
-    // Vérifier si l'URL correspond à un parc spécifique
+    if (currentPath === '/') return '';
     const currentPark = parks?.find(park => currentPath.startsWith(park.url));
-    
-    // Retourner l'URL du parc si trouvé, sinon "Tous les parcs"
     return currentPark ? currentPark.url : '';
   };
 
   const handleMegaMenuOpen = (menuId: string, event: React.MouseEvent) => {
-    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    const btn = event.currentTarget as HTMLElement;
+    const rect = btn.getBoundingClientRect();
     const mid = rect.left + rect.width / 2;
     const w = window.innerWidth;
-    setMegaMenuPosition(mid < w * 0.33 ? 'left' : mid > w * 0.67 ? 'right' : 'center');
+
+    // Calcul plus intelligent de la position pour éviter les débordements
+    if (mid < w * 0.35) {
+      setMegaMenuPosition('left');
+    } else if (mid > w * 0.65) {
+      setMegaMenuPosition('right');
+    } else {
+      setMegaMenuPosition('center');
+    }
     setActiveMegaMenu(menuId);
   };
 
@@ -161,19 +162,21 @@ export function Header() {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-20">
 
-            {/* Logo */}
+            {/* Logo — taille réduite sur lg, normale sur xl */}
             <Link to="/" className="flex items-center group relative z-[60] shrink-0 mr-2 xl:mr-4">
               <motion.img
                 src={logo?.url || nolimitLogoFallback}
                 alt={logo?.alt || 'NoLimit Aventure'}
-                className="h-10 xl:h-12 w-auto"
+                className="h-9 lg:h-10 xl:h-12 w-auto"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               />
             </Link>
 
-            {/* ── Navigation Desktop ── */}
-            <nav className="hidden lg:flex items-center gap-1">
+            {/* ── Navigation Desktop ──
+                 On passe de lg: à xl: pour le breakpoint principal,
+                 et on utilise un gap réduit + padding réduit sur lg */}
+            <nav className="hidden xl:flex items-center gap-0.5 xl:gap-1">
               {menuItems.map((item) => {
                 if (item.type === 'simple') {
                   return (
@@ -195,6 +198,7 @@ export function Header() {
                     <div
                       key={item.id}
                       className="relative"
+                      ref={megaMenuContainerRef}
                       onMouseEnter={(e) => handleMegaMenuOpen(item.id.toString(), e)}
                       onMouseLeave={() => setActiveMegaMenu(null)}
                     >
@@ -225,7 +229,7 @@ export function Header() {
                               left: megaMenuPosition === 'left' ? '0' : megaMenuPosition === 'center' ? '50%' : 'auto',
                               right: megaMenuPosition === 'right' ? '0' : 'auto',
                               transform: megaMenuPosition === 'center' ? 'translateX(-50%)' : 'none',
-                              minWidth: '800px',
+                              minWidth: 'min(800px, 85vw)',
                               maxWidth: '90vw',
                             }}
                           >
@@ -245,10 +249,10 @@ export function Header() {
             </nav>
 
             {/* ── CTA Desktop ── */}
-            <div className="hidden lg:flex items-center gap-3">
+            <div className="hidden xl:flex items-center gap-2 xl:gap-3 shrink-0">
               {showParkSelector && parks?.length > 0 && (
                 <select
-                  className="px-4 py-2.5 border-2 rounded-xl text-sm font-medium hover:shadow-md focus:outline-none transition-all cursor-pointer bg-white"
+                  className="px-3 xl:px-4 py-2 xl:py-2.5 border-2 rounded-xl text-xs xl:text-sm font-medium hover:shadow-md focus:outline-none transition-all cursor-pointer bg-white max-w-[180px] xl:max-w-none truncate"
                   style={{ borderColor: primaryColor, color: primaryColor }}
                   value={getCurrentParkValue()}
                   onChange={(e) => {
@@ -270,12 +274,12 @@ export function Header() {
               )}
 
               {/* ── Bouton Événement — séparateur + pill verte ── */}
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 xl:gap-3">
                 <div className="w-px h-6 bg-gray-200" />
                 <BoutonEvenement
                   variant="green"
                   size="md"
-                  label="Votre événement"
+                  label="Événement"
                   href="/evenements"
                 />
               </div>
@@ -284,7 +288,7 @@ export function Header() {
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <Link
                   to={ctaUrl}
-                  className="relative flex items-center gap-2 px-6 py-3 text-white rounded-full font-bold shadow-lg overflow-hidden"
+                  className="relative flex items-center gap-2 px-5 xl:px-6 py-2.5 xl:py-3 text-white rounded-full font-bold shadow-lg overflow-hidden text-sm xl:text-base whitespace-nowrap"
                   style={{ backgroundColor: secondaryColor }}
                 >
                   <motion.div
@@ -300,8 +304,9 @@ export function Header() {
               </motion.div>
             </div>
 
-            {/* ── Mobile : Bouton + Hamburger ── */}
-            <div className="lg:hidden flex items-center gap-2 relative z-[60]">
+            {/* ── Mobile + Tablette : Bouton + Hamburger ──
+                 Visible en dessous de xl (< 1280px) au lieu de lg (< 1024px) */}
+            <div className="xl:hidden flex items-center gap-2 relative z-[60]">
               <AnimatePresence>
                 {!isMenuOpen && (
                   <motion.div
@@ -313,7 +318,7 @@ export function Header() {
                   >
                     <Link
                       to={ctaUrl}
-                      className="flex items-center gap-1.5 px-4 py-2.5 text-white rounded-full font-bold text-sm shadow-md"
+                      className="flex items-center gap-1.5 px-4 py-2.5 text-white rounded-full font-bold text-sm shadow-md whitespace-nowrap"
                       style={{ backgroundColor: secondaryColor }}
                     >
                       <Calendar className="size-4" />
@@ -325,7 +330,7 @@ export function Header() {
 
               <motion.button
                 onClick={() => { setIsMenuOpen(!isMenuOpen); if (isMenuOpen) setActiveMobileSubmenu(null); }}
-                className="relative w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300"
+                className="relative w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 shrink-0"
                 style={{ backgroundColor: isMenuOpen ? 'rgba(255,255,255,0.15)' : mobileMenuBg }}
                 aria-label="Toggle menu"
                 whileTap={{ scale: 0.9 }}
@@ -347,7 +352,8 @@ export function Header() {
         </div>
       </header>
 
-      {/* ═══════════════════ MENU MOBILE FULLSCREEN ═══════════════════ */}
+      {/* ═══════════════════ MENU MOBILE FULLSCREEN ═══════════════════
+           Visible en dessous de xl */}
       <AnimatePresence>
         {isMenuOpen && (
           <motion.div
@@ -355,7 +361,7 @@ export function Header() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-            className="fixed inset-0 z-50 lg:hidden"
+            className="fixed inset-0 z-50 xl:hidden"
             style={{ background: `linear-gradient(160deg, ${mobileMenuBg} 0%, ${mobileMenuBgDark} 100%)` }}
           >
             <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `radial-gradient(circle at 20% 80%, rgba(255,255,255,0.15) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255,255,255,0.1) 0%, transparent 50%)` }} />
@@ -410,13 +416,30 @@ export function Header() {
                 })}
               </nav>
 
+              {/* ── Bouton Événement dans le menu mobile ── */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 + menuItems.length * 0.06, duration: 0.5 }}
+                className="mt-4 px-3"
+              >
+                <Link
+                  to="/evenements"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="flex items-center justify-center gap-3 w-full py-3.5 rounded-2xl font-bold text-base text-white border border-white/20 bg-white/10 hover:bg-white/15 transition-colors"
+                >
+                  <PartyPopper className="size-5" />
+                  <span>Votre événement</span>
+                </Link>
+              </motion.div>
+
               {showParkSelector && parks?.length > 0 && (
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 + menuItems.length * 0.06 + 0.1, duration: 0.5 }} className="mt-6 px-3">
                   <div className="flex items-center gap-2 mb-3">
                     <MapPin className="size-5 text-white/70" />
                     <span className="text-white/70 text-sm font-semibold uppercase tracking-wider">Nos parcs</span>
                   </div>
-                  <div className="grid grid-cols-1 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {parks.map((park, i) => (
                       <motion.button key={park.id} onClick={() => { navigate(park.url); setIsMenuOpen(false); }} className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/8 border border-white/10 hover:bg-white/15 transition-all text-left group" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 + i * 0.05 }}>
                         <span className="text-lg">{park.emoji}</span>
@@ -427,6 +450,24 @@ export function Header() {
                   </div>
                 </motion.div>
               )}
+
+              {/* ── CTA Réserver en bas du menu mobile ── */}
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5, duration: 0.5 }}
+                className="mt-6 px-3"
+              >
+                <Link
+                  to={ctaUrl}
+                  onClick={() => setIsMenuOpen(false)}
+                  className="flex items-center justify-center gap-3 w-full py-4 rounded-2xl font-black text-lg text-white shadow-2xl"
+                  style={{ backgroundColor: secondaryColor }}
+                >
+                  <Calendar className="size-5" />
+                  <span>{ctaText}</span>
+                </Link>
+              </motion.div>
 
               <motion.div className="flex items-center justify-center gap-3 mt-8 mb-4" initial={{ opacity: 0 }} animate={{ opacity: 0.3 }} transition={{ delay: 0.7, duration: 0.6 }}>
                 <div className="h-px flex-1 bg-white/30" />
@@ -468,31 +509,31 @@ function MegaMenuDiscover({ primaryColor, secondaryColor }: { primaryColor: stri
     { to: '/about/partenaires', icon: Users, label: 'Nos Partenaires', desc: 'Ils nous font confiance' },
   ];
   return (
-    <div className="grid grid-cols-3 gap-6 p-8">
-      <div className="col-span-1 relative h-64 rounded-2xl overflow-hidden group">
+    <div className="grid grid-cols-3 gap-4 xl:gap-6 p-6 xl:p-8">
+      <div className="col-span-1 relative h-56 xl:h-64 rounded-2xl overflow-hidden group">
         <img src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=400&h=300&fit=crop" alt="NoLimit Aventure" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex items-end p-6">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex items-end p-4 xl:p-6">
           <div className="text-white">
-            <h3 className="font-black text-2xl mb-2">Qui sommes-nous ?</h3>
-            <p className="text-sm text-white/90">Passion, aventure et dépassement de soi</p>
+            <h3 className="font-black text-xl xl:text-2xl mb-1 xl:mb-2">Qui sommes-nous ?</h3>
+            <p className="text-xs xl:text-sm text-white/90">Passion, aventure et dépassement de soi</p>
           </div>
         </div>
       </div>
-      <div className="col-span-2 grid grid-cols-2 gap-3">
+      <div className="col-span-2 grid grid-cols-2 gap-2 xl:gap-3">
         {links.map((link, index) => (
           <motion.div key={link.to} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.05, type: 'spring', stiffness: 200 }}>
             <Link
               to={link.to}
-              className="flex items-start gap-4 p-4 rounded-xl transition-all group border-2 border-transparent"
+              className="flex items-start gap-3 xl:gap-4 p-3 xl:p-4 rounded-xl transition-all group border-2 border-transparent"
               onMouseEnter={e => { e.currentTarget.style.borderColor = secondaryColor; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'; }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = 'transparent'; e.currentTarget.style.boxShadow = 'none'; }}
             >
-              <motion.div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${primaryColor}12` }} whileHover={{ scale: 1.1, rotate: 5 }}>
-                <link.icon className="size-6" style={{ color: primaryColor }} />
+              <motion.div className="w-10 h-10 xl:w-12 xl:h-12 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: `${primaryColor}12` }} whileHover={{ scale: 1.1, rotate: 5 }}>
+                <link.icon className="size-5 xl:size-6" style={{ color: primaryColor }} />
               </motion.div>
-              <div className="flex-1">
-                <div className="font-bold text-gray-900 mb-1 group-hover:translate-x-1 transition-transform">{link.label}</div>
-                <div className="text-sm text-gray-500">{link.desc}</div>
+              <div className="flex-1 min-w-0">
+                <div className="font-bold text-gray-900 text-sm mb-0.5 xl:mb-1 group-hover:translate-x-1 transition-transform truncate">{link.label}</div>
+                <div className="text-xs xl:text-sm text-gray-500 truncate">{link.desc}</div>
               </div>
             </Link>
           </motion.div>
@@ -504,25 +545,29 @@ function MegaMenuDiscover({ primaryColor, secondaryColor }: { primaryColor: stri
 
 function MegaMenuAudience({ pourQuiData, primaryColor, secondaryColor }: { pourQuiData: PourQuiDataType; primaryColor: string; secondaryColor: string }) {
   const cards = pourQuiData?.cards || [];
+  // Limiter à 4 cartes max pour la grille, mais gérer le cas où il y en a moins
+  const displayCards = cards.slice(0, 4);
+  const gridCols = displayCards.length <= 2 ? 'grid-cols-2' : displayCards.length === 3 ? 'grid-cols-3' : 'grid-cols-4';
+
   return (
-    <div className="p-8">
-      <div className="mb-6 text-center">
-        <h3 className="text-2xl font-black mb-2" style={{ color: primaryColor }}>{pourQuiData?.title || "C'est pour qui ?"}</h3>
-        <p className="text-gray-500">{pourQuiData?.subtitle || 'Une aventure pour tous'}</p>
+    <div className="p-6 xl:p-8">
+      <div className="mb-4 xl:mb-6 text-center">
+        <h3 className="text-xl xl:text-2xl font-black mb-1 xl:mb-2" style={{ color: primaryColor }}>{pourQuiData?.title || "C'est pour qui ?"}</h3>
+        <p className="text-gray-500 text-sm">{pourQuiData?.subtitle || 'Une aventure pour tous'}</p>
       </div>
-      <div className="grid grid-cols-4 gap-4 mb-6">
-        {cards.map((card, index) => {
+      <div className={`grid ${gridCols} gap-3 xl:gap-4 mb-4 xl:mb-6`}>
+        {displayCards.map((card, index) => {
           const IconComponent = iconMap[card.iconName] || Star;
           return (
             <motion.div key={card.link} initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: index * 0.05, type: 'spring', stiffness: 200 }}>
-              <Link to={card.link} className="block rounded-2xl overflow-hidden hover:shadow-xl transition-all group relative h-48">
+              <Link to={card.link} className="block rounded-2xl overflow-hidden hover:shadow-xl transition-all group relative h-40 xl:h-48">
                 <div className="absolute inset-0"><img src={card.image} alt={card.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" /></div>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20" />
-                <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center">
-                  <motion.div className="mb-3 p-3 rounded-full" style={{ backgroundColor: `${card.color}30` }} whileHover={{ scale: 1.2, rotate: 10 }} transition={{ type: 'spring', stiffness: 300 }}>
-                    <IconComponent className="size-6" style={{ color: card.color }} />
+                <div className="absolute inset-0 flex flex-col items-center justify-center p-3 xl:p-4 text-center">
+                  <motion.div className="mb-2 xl:mb-3 p-2.5 xl:p-3 rounded-full" style={{ backgroundColor: `${card.color}30` }} whileHover={{ scale: 1.2, rotate: 10 }} transition={{ type: 'spring', stiffness: 300 }}>
+                    <IconComponent className="size-5 xl:size-6" style={{ color: card.color }} />
                   </motion.div>
-                  <div className="font-bold text-white mb-1">{card.title}</div>
+                  <div className="font-bold text-white text-sm mb-0.5 xl:mb-1">{card.title}</div>
                   <div className="text-xs text-white/80 line-clamp-2">{card.description}</div>
                 </div>
                 <div className="absolute inset-0 border-4 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" style={{ borderColor: card.color }} />
@@ -531,27 +576,18 @@ function MegaMenuAudience({ pourQuiData, primaryColor, secondaryColor }: { pourQ
           );
         })}
       </div>
-      <div className="pt-6 border-t" style={{ borderColor: `${primaryColor}20` }}>
-        <Link to="/evenements" className="flex items-center justify-between w-full px-6 py-4 rounded-xl font-bold hover:shadow-xl transition-all text-white group" style={{ background: `linear-gradient(to right, ${primaryColor}, ${secondaryColor})` }}>
-          <div className="flex items-center gap-4">
-            <motion.div className="p-3 rounded-full bg-white/20" whileHover={{ scale: 1.1, rotate: 360 }} transition={{ duration: 0.6 }}>
-              <Calendar className="size-6 text-white" />
+      <div className="pt-4 xl:pt-6 border-t" style={{ borderColor: `${primaryColor}20` }}>
+        <Link to="/evenements" className="flex items-center justify-between w-full px-4 xl:px-6 py-3 xl:py-4 rounded-xl font-bold hover:shadow-xl transition-all text-white group" style={{ background: `linear-gradient(to right, ${primaryColor}, ${secondaryColor})` }}>
+          <div className="flex items-center gap-3 xl:gap-4 min-w-0">
+            <motion.div className="p-2.5 xl:p-3 rounded-full bg-white/20 shrink-0" whileHover={{ scale: 1.1, rotate: 360 }} transition={{ duration: 0.6 }}>
+              <Calendar className="size-5 xl:size-6 text-white" />
             </motion.div>
-            <div className="text-left">
-              <div className="text-lg font-black">Votre événement</div>
-              <div className="text-sm font-normal opacity-90">Anniversaire • EVG • EVJF • Team Building • Soirée privée</div>
+            <div className="text-left min-w-0">
+              <div className="text-base xl:text-lg font-black">Votre événement</div>
+              <div className="text-xs xl:text-sm font-normal opacity-90 truncate">Anniversaire • EVG • EVJF • Team Building • Soirée privée</div>
             </div>
           </div>
-          <motion.span animate={{ x: [0, 5, 0] }} transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }} className="text-2xl">→</motion.span>
-        </Link>
-      </div>
-      <div className="mt-4">
-        <Link to="/devis" className="flex items-center justify-center gap-2 w-full px-6 py-3 rounded-xl font-bold transition-all hover:shadow-lg" style={{ color: primaryColor, border: `2px solid ${primaryColor}` }}
-          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = `${primaryColor}10`; }}
-          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'; }}
-        >
-          <Phone className="size-5" />
-          Demander un devis personnalisé
+          <motion.span animate={{ x: [0, 5, 0] }} transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }} className="text-2xl shrink-0 ml-2">→</motion.span>
         </Link>
       </div>
     </div>
@@ -566,20 +602,20 @@ function MegaMenuGroups({ primaryColor, secondaryColor }: { primaryColor: string
     { to: '/groups/family', icon: Users, label: 'Grandes familles', desc: 'Réunions de famille', image: 'https://images.unsplash.com/photo-1511895426328-dc8714191300?w=300&h=200&fit=crop' },
   ];
   return (
-    <div className="p-8">
-      <div className="grid grid-cols-2 gap-4 mb-6">
+    <div className="p-6 xl:p-8">
+      <div className="grid grid-cols-2 gap-3 xl:gap-4 mb-4 xl:mb-6">
         {groupTypes.map((type, index) => (
           <motion.div key={type.to} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05, type: 'spring' }}>
             <Link to={type.to} className="group block rounded-2xl overflow-hidden hover:shadow-2xl transition-all border-2 border-transparent"
               onMouseEnter={e => { e.currentTarget.style.borderColor = secondaryColor; }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = 'transparent'; }}
             >
-              <div className="relative h-40 overflow-hidden">
+              <div className="relative h-32 xl:h-40 overflow-hidden">
                 <img src={type.image} alt={type.label} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent" />
-                <div className="absolute bottom-4 left-4 text-white">
-                  <div className="flex items-center gap-2 mb-2"><type.icon className="size-6" /><span className="font-black text-xl">{type.label}</span></div>
-                  <div className="text-sm text-white/90">{type.desc}</div>
+                <div className="absolute bottom-3 xl:bottom-4 left-3 xl:left-4 text-white">
+                  <div className="flex items-center gap-2 mb-1 xl:mb-2"><type.icon className="size-5 xl:size-6" /><span className="font-black text-lg xl:text-xl">{type.label}</span></div>
+                  <div className="text-xs xl:text-sm text-white/90">{type.desc}</div>
                 </div>
               </div>
             </Link>
@@ -587,8 +623,8 @@ function MegaMenuGroups({ primaryColor, secondaryColor }: { primaryColor: string
         ))}
       </div>
       <div className="grid grid-cols-2 gap-3">
-        <Link to="/groups/cse" className="px-4 py-3 rounded-xl font-bold hover:shadow-lg transition-all text-center text-white" style={{ backgroundColor: primaryColor }}>CSE & Comités</Link>
-        <Link to="/groups/quote" className="px-4 py-3 rounded-xl font-bold hover:shadow-lg transition-all text-center text-white" style={{ backgroundColor: secondaryColor }}>Demander un devis</Link>
+        <Link to="/groups/cse" className="px-4 py-3 rounded-xl font-bold hover:shadow-lg transition-all text-center text-white text-sm" style={{ backgroundColor: primaryColor }}>CSE & Comités</Link>
+        <Link to="/groups/quote" className="px-4 py-3 rounded-xl font-bold hover:shadow-lg transition-all text-center text-white text-sm" style={{ backgroundColor: secondaryColor }}>Demander un devis</Link>
       </div>
     </div>
   );
@@ -604,27 +640,27 @@ function MegaMenuPrepare({ primaryColor, secondaryColor }: { primaryColor: strin
     { to: '/blog/pets', icon: '🐕', label: 'Animaux de compagnie', desc: 'Règles et conditions' },
   ];
   return (
-    <div className="p-8">
-      <div className="mb-6">
-        <h3 className="text-2xl font-black mb-2 text-gray-900">Préparez votre visite</h3>
-        <p className="text-gray-500">Toutes les réponses à vos questions</p>
+    <div className="p-6 xl:p-8">
+      <div className="mb-4 xl:mb-6">
+        <h3 className="text-xl xl:text-2xl font-black mb-1 xl:mb-2 text-gray-900">Préparez votre visite</h3>
+        <p className="text-gray-500 text-sm">Toutes les réponses à vos questions</p>
       </div>
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-3 xl:gap-4">
         {tips.map((tip, index) => (
           <motion.div key={tip.to} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.04, type: 'spring' }}>
-            <Link to={tip.to} className="block p-5 rounded-2xl border-2 border-transparent hover:shadow-lg transition-all group"
+            <Link to={tip.to} className="block p-4 xl:p-5 rounded-2xl border-2 border-transparent hover:shadow-lg transition-all group"
               onMouseEnter={e => { e.currentTarget.style.borderColor = secondaryColor; }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = 'transparent'; }}
             >
-              <motion.div className="text-4xl mb-3" whileHover={{ scale: 1.2, rotate: 10 }} transition={{ type: 'spring', stiffness: 300 }}>{tip.icon}</motion.div>
-              <div className="font-bold text-sm mb-1 text-gray-900">{tip.label}</div>
+              <motion.div className="text-3xl xl:text-4xl mb-2 xl:mb-3" whileHover={{ scale: 1.2, rotate: 10 }} transition={{ type: 'spring', stiffness: 300 }}>{tip.icon}</motion.div>
+              <div className="font-bold text-xs xl:text-sm mb-0.5 xl:mb-1 text-gray-900">{tip.label}</div>
               <div className="text-xs text-gray-500">{tip.desc}</div>
             </Link>
           </motion.div>
         ))}
       </div>
-      <div className="mt-6 pt-6 border-t" style={{ borderColor: `${primaryColor}20` }}>
-        <Link to="/blog" className="flex items-center justify-center gap-2 font-bold transition-colors hover:opacity-80" style={{ color: primaryColor }}>
+      <div className="mt-4 xl:mt-6 pt-4 xl:pt-6 border-t" style={{ borderColor: `${primaryColor}20` }}>
+        <Link to="/blog" className="flex items-center justify-center gap-2 font-bold transition-colors hover:opacity-80 text-sm" style={{ color: primaryColor }}>
           <HelpCircle className="size-5" />
           Voir toutes les questions fréquentes
         </Link>
@@ -650,7 +686,7 @@ function MobileMegaMenuDiscover({ onClose }: { onClose: () => void }) {
         <motion.div key={link.to} initial={{ opacity: 0, x: -15 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.04, duration: 0.3 }}>
           <Link to={link.to} onClick={onClose} className="flex items-center gap-3 px-4 py-3 hover:bg-white/8 transition-colors group">
             <div className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center shrink-0 group-hover:bg-white/20 transition-colors"><link.icon className="size-4 text-white/80" /></div>
-            <div><div className="font-semibold text-sm text-white">{link.label}</div><div className="text-xs text-white/50">{link.desc}</div></div>
+            <div className="min-w-0"><div className="font-semibold text-sm text-white truncate">{link.label}</div><div className="text-xs text-white/50 truncate">{link.desc}</div></div>
           </Link>
         </motion.div>
       ))}
@@ -668,16 +704,16 @@ function MobileMegaMenuAudience({ onClose, pourQuiData }: { onClose: () => void;
           <motion.div key={card.link} initial={{ opacity: 0, x: -15 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.04, duration: 0.3 }}>
             <Link to={card.link} onClick={onClose} className="flex items-center gap-3 px-4 py-3 hover:bg-white/8 transition-colors group">
               <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: `${card.color}25` }}><IconComponent className="size-4" style={{ color: card.color }} /></div>
-              <div><div className="font-semibold text-sm text-white">{card.title}</div><div className="text-xs text-white/50 line-clamp-1">{card.description}</div></div>
+              <div className="min-w-0"><div className="font-semibold text-sm text-white truncate">{card.title}</div><div className="text-xs text-white/50 line-clamp-1">{card.description}</div></div>
             </Link>
           </motion.div>
         );
       })}
       <Link to="/evenements" onClick={onClose} className="flex items-center gap-3 px-4 py-3 hover:bg-white/8 transition-colors">
         <div className="w-9 h-9 rounded-lg bg-white/15 flex items-center justify-center shrink-0"><Calendar className="size-4 text-white/80" /></div>
-        <div><div className="font-semibold text-sm text-white">Votre événement</div><div className="text-xs text-white/50">Anniversaire • EVG • EVJF • Team Building</div></div>
+        <div className="min-w-0"><div className="font-semibold text-sm text-white">Votre événement</div><div className="text-xs text-white/50 truncate">Anniversaire • EVG • EVJF • Team Building</div></div>
       </Link>
-      <Link to="/devis" onClick={onClose} className="flex items-center gap-2 px-4 py-3 font-semibold text-sm text-white/80 hover:text-white hover:bg-white/8 transition-all"><Phone className="size-4" />Demander un devis personnalisé</Link>
+      <Link to="/devis" onClick={onClose} className="flex items-center gap-2 px-4 py-3 font-semibold text-sm text-white/80 hover:text-white hover:bg-white/8 transition-all"><Phone className="size-4 shrink-0" /><span className="truncate">Demander un devis personnalisé</span></Link>
     </div>
   );
 }
@@ -695,15 +731,15 @@ function MobileMegaMenuGroups({ onClose }: { onClose: () => void }) {
         <motion.div key={type.to} initial={{ opacity: 0, x: -15 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.04, duration: 0.3 }}>
           <Link to={type.to} onClick={onClose} className="flex items-center gap-3 px-4 py-3 hover:bg-white/8 transition-colors group">
             <div className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center shrink-0 group-hover:bg-white/20 transition-colors"><type.icon className="size-4 text-white/80" /></div>
-            <div><div className="font-semibold text-sm text-white">{type.label}</div><div className="text-xs text-white/50">{type.desc}</div></div>
+            <div className="min-w-0"><div className="font-semibold text-sm text-white truncate">{type.label}</div><div className="text-xs text-white/50 truncate">{type.desc}</div></div>
           </Link>
         </motion.div>
       ))}
       <Link to="/groups/cse" onClick={onClose} className="flex items-center gap-3 px-4 py-3 hover:bg-white/8 transition-colors">
         <div className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center shrink-0"><Briefcase className="size-4 text-white/80" /></div>
-        <div><div className="font-semibold text-sm text-white">CSE & Comités</div><div className="text-xs text-white/50">Avantages entreprise</div></div>
+        <div className="min-w-0"><div className="font-semibold text-sm text-white">CSE & Comités</div><div className="text-xs text-white/50">Avantages entreprise</div></div>
       </Link>
-      <Link to="/groups/quote" onClick={onClose} className="flex items-center gap-2 px-4 py-3 font-semibold text-sm text-white/80 hover:text-white hover:bg-white/8 transition-all"><Phone className="size-4" />Demander un devis groupe</Link>
+      <Link to="/groups/quote" onClick={onClose} className="flex items-center gap-2 px-4 py-3 font-semibold text-sm text-white/80 hover:text-white hover:bg-white/8 transition-all"><Phone className="size-4 shrink-0" /><span className="truncate">Demander un devis groupe</span></Link>
     </div>
   );
 }
@@ -722,12 +758,12 @@ function MobileMegaMenuPrepare({ onClose }: { onClose: () => void }) {
       {tips.map((tip, i) => (
         <motion.div key={tip.to} initial={{ opacity: 0, x: -15 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.04, duration: 0.3 }}>
           <Link to={tip.to} onClick={onClose} className="flex items-center gap-3 px-4 py-3 hover:bg-white/8 transition-colors">
-            <span className="text-xl w-9 text-center">{tip.icon}</span>
-            <div><div className="font-semibold text-sm text-white">{tip.label}</div><div className="text-xs text-white/50">{tip.desc}</div></div>
+            <span className="text-xl w-9 text-center shrink-0">{tip.icon}</span>
+            <div className="min-w-0"><div className="font-semibold text-sm text-white truncate">{tip.label}</div><div className="text-xs text-white/50 truncate">{tip.desc}</div></div>
           </Link>
         </motion.div>
       ))}
-      <Link to="/blog" onClick={onClose} className="flex items-center gap-2 px-4 py-3 font-semibold text-sm text-white/80 hover:text-white hover:bg-white/8 transition-all"><HelpCircle className="size-4" />Voir toutes les questions fréquentes</Link>
+      <Link to="/blog" onClick={onClose} className="flex items-center gap-2 px-4 py-3 font-semibold text-sm text-white/80 hover:text-white hover:bg-white/8 transition-all"><HelpCircle className="size-4 shrink-0" /><span className="truncate">Voir toutes les questions fréquentes</span></Link>
     </div>
   );
 }
@@ -752,29 +788,29 @@ function DefaultHeader() {
             <Link to="/" className="relative z-[60]">
               <img src={nolimitLogoFallback} alt="NoLimit Aventure" className="h-12 w-auto" />
             </Link>
-            <nav className="hidden lg:flex items-center gap-1">
+            <nav className="hidden xl:flex items-center gap-1">
               {[{ to: '/', label: 'Accueil' }, { to: '/activities', label: 'Activités' }, { to: '/contact', label: 'Contact' }].map(link => (
                 <DesktopNavLink key={link.to} to={link.to} isActive={isActive(link.to)} primaryColor="#357600" secondaryColor="#eb700f">{link.label}</DesktopNavLink>
               ))}
             </nav>
-            <div className="hidden lg:flex items-center gap-3">
+            <div className="hidden xl:flex items-center gap-3">
               <div className="w-px h-6 bg-gray-200" />
-              <BoutonEvenement variant="green" size="sm" label="Votre événement" href="/evenements" />
+              <BoutonEvenement variant="green" size="sm" label="Événement" href="/evenements" />
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Link to="/booking" className="flex items-center gap-2 px-6 py-3 text-white rounded-full font-bold shadow-lg bg-[#eb700f]">
+                <Link to="/booking" className="flex items-center gap-2 px-6 py-3 text-white rounded-full font-bold shadow-lg bg-[#eb700f] whitespace-nowrap">
                   <Calendar className="size-4" /><span>Réserver</span>
                 </Link>
               </motion.div>
             </div>
-            <div className="lg:hidden flex items-center gap-2 relative z-[60]">
+            <div className="xl:hidden flex items-center gap-2 relative z-[60]">
               <AnimatePresence>
                 {!isMenuOpen && (
                   <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }}>
-                    <Link to="/booking" className="flex items-center gap-1.5 px-4 py-2.5 text-white rounded-full font-bold text-sm bg-[#eb700f]"><Calendar className="size-4" /><span>Réserver</span></Link>
+                    <Link to="/booking" className="flex items-center gap-1.5 px-4 py-2.5 text-white rounded-full font-bold text-sm bg-[#eb700f] whitespace-nowrap"><Calendar className="size-4" /><span>Réserver</span></Link>
                   </motion.div>
                 )}
               </AnimatePresence>
-              <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="w-12 h-12 rounded-full flex items-center justify-center transition-all" style={{ backgroundColor: isMenuOpen ? 'rgba(255,255,255,0.15)' : '#1B5E20' }}>
+              <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="w-12 h-12 rounded-full flex items-center justify-center transition-all shrink-0" style={{ backgroundColor: isMenuOpen ? 'rgba(255,255,255,0.15)' : '#1B5E20' }}>
                 {isMenuOpen ? <X className="size-6 text-white" /> : <Menu className="size-6 text-white" />}
               </button>
             </div>
@@ -783,7 +819,7 @@ function DefaultHeader() {
       </header>
       <AnimatePresence>
         {isMenuOpen && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.4 }} className="fixed inset-0 z-50 lg:hidden" style={{ background: 'linear-gradient(160deg, #1B5E20 0%, #0D3B13 100%)' }}>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.4 }} className="fixed inset-0 z-50 xl:hidden" style={{ background: 'linear-gradient(160deg, #1B5E20 0%, #0D3B13 100%)' }}>
             <div className="flex items-center justify-between h-20 px-4">
               <Link to="/" onClick={() => setIsMenuOpen(false)}><img src={nolimitLogoFallback} alt="NoLimit" className="h-12 w-auto brightness-0 invert" /></Link>
               <button onClick={() => setIsMenuOpen(false)} className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center"><X className="size-6 text-white" /></button>

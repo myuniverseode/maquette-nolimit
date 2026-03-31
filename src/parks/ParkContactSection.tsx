@@ -2,12 +2,31 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSiteConfig } from "../hooks/useSiteConfig";
-import { Phone, Mail, Send, MessageCircle, ArrowRight, CheckCircle, AlertCircle } from 'lucide-react';
+import { useFooterData } from "../hooks/useFooterData"; // import du hook du footer
+import { Phone, Mail, Send, MessageCircle, ArrowRight, CheckCircle, AlertCircle, FileText, Instagram, Facebook, Shield } from 'lucide-react';
 import { SubtlePatternBg } from './ParkHelpers';
 
 const GREEN  = '#357600';
 const ORANGE = '#eb700f';
 const DARK   = '#111111';
+
+// Icône TikTok
+const TikTokIcon = ({ size = 20, color = 'currentColor', className = '' }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke={color}
+    strokeWidth="1.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
+  </svg>
+);
 
 function ContactSubjectPicker() {
   const [selected, setSelected] = useState<string | null>(null);
@@ -41,15 +60,15 @@ function ContactSubjectPicker() {
   );
 }
 
-const DEFAULT_SOCIAL_LINKS = [
-  { icon: '📸', label: 'Instagram', color: '#e1306c', handle: '@nolimit_parc' },
-  { icon: '👥', label: 'Facebook',  color: '#1877f2', handle: 'NoLimit Parc'  },
-  { icon: '🎵', label: 'TikTok',    color: '#010101', handle: '@nolimit'       },
+const SOCIAL_LINKS = [
+  { icon: Instagram, label: 'Instagram', color: '#e1306c', handle: '@nolimit_parc', url: 'https://instagram.com/nolimit_parc' },
+  { icon: Facebook,  label: 'Facebook',  color: '#1877f2', handle: 'NoLimit Parc', url: 'https://facebook.com/nolimitparc' },
+  { icon: TikTokIcon,label: 'TikTok',    color: '#010101', handle: '@nolimit',     url: 'https://tiktok.com/@nolimit' },
 ];
 
 export function ParkContactSection({ park }: { park: any }) {
   const { config } = useSiteConfig();
-  const contactSocialLinks = DEFAULT_SOCIAL_LINKS;
+  const { legalLinks, loading: legalLoading } = useFooterData(); // récupère les liens légaux du footer
   const [formSubmitted, setFormSubmitted] = useState(false);
 
   const handleFormSubmit = (e: React.FormEvent) => {
@@ -69,6 +88,16 @@ export function ParkContactSection({ park }: { park: any }) {
       e.target.style.backgroundColor = '#f9fafb';
     },
   };
+
+  const hasCgv = park?.cgvUrl && park.cgvUrl.trim() !== '';
+
+  // Liens légaux par défaut (si le hook n'a pas encore chargé)
+  const defaultLegalLinks = [
+    { label: 'Mentions légales',             to: '/legal'   },
+    { label: 'Politique de confidentialité', to: '/privacy' },
+    { label: 'Règlement intérieur',          to: '/rules'   },
+  ];
+  const displayLegalLinks = legalLinks && legalLinks.length > 0 ? legalLinks : defaultLegalLinks;
 
   return (
     <div className="relative bg-slate-50 pt-16 pb-20">
@@ -140,24 +169,108 @@ export function ParkContactSection({ park }: { park: any }) {
               </div>
             </motion.div>
 
+            {/* Bloc réseaux sociaux */}
             <motion.div
               initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }}
               className="bg-white rounded-3xl p-5 border border-gray-100 shadow-sm"
             >
               <div className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-4">Suivez-nous</div>
               <div className="flex gap-3">
-                {contactSocialLinks.map(({ icon, label, handle }) => (
-                  <motion.a key={label} href="#" whileHover={{ y: -3, scale: 1.05 }} className="flex-1 flex flex-col items-center gap-1.5 py-3 rounded-2xl text-center border border-gray-100 hover:border-gray-200 hover:shadow-sm transition-all">
-                    <span className="text-xl">{icon}</span>
+                {SOCIAL_LINKS.map(({ icon: Icon, label, color, handle, url }) => (
+                  <motion.a
+                    key={label}
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    whileHover={{ y: -3, scale: 1.05 }}
+                    className="flex-1 flex flex-col items-center gap-1.5 py-3 rounded-2xl text-center border border-gray-100 hover:border-gray-200 hover:shadow-sm transition-all"
+                  >
+                    <Icon size={20} color={color} className="shrink-0" />
                     <span className="text-[10px] font-black text-gray-600">{label}</span>
                     <span className="text-[9px] text-gray-400 truncate w-full text-center px-1">{handle}</span>
                   </motion.a>
                 ))}
               </div>
             </motion.div>
+
+            {/* ─── NOUVEAU BLOC : Informations légales ─── */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.25 }}
+              className="bg-white rounded-3xl p-5 border border-gray-100 shadow-sm"
+            >
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ backgroundColor: `${GREEN}20` }}>
+                  <Shield className="size-3" style={{ color: GREEN }} />
+                </div>
+                <div className="text-xs text-gray-400 font-bold uppercase tracking-wider">Informations légales</div>
+              </div>
+
+              {legalLoading ? (
+                // Skeleton
+                <div className="space-y-3">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="h-8 bg-gray-100 rounded-xl animate-pulse" />
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {displayLegalLinks.map((link, idx) => (
+                    <motion.a
+                      key={`legal-${idx}`}
+                      href={link.to}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.3 + idx * 0.05 }}
+                      className="flex items-center justify-between p-3 rounded-xl hover:bg-gray-50 transition-colors group"
+                    >
+                      <div className="flex items-center gap-3">
+                        <FileText className="size-4 text-gray-400 group-hover:text-green-600 transition-colors" />
+                        <span className="text-sm font-medium text-gray-700 group-hover:text-green-700 transition-colors">
+                          {link.label}
+                        </span>
+                      </div>
+                      <ArrowRight className="size-4 text-gray-300 group-hover:translate-x-0.5 transition-all" />
+                    </motion.a>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+
+            {/* Bloc CGV du parc (séparé) */}
+            {hasCgv && (
+              <motion.a
+                href={park.cgvUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.3 }}
+                whileHover={{ y: -4, scale: 1.01 }}
+                className="flex items-center gap-5 p-6 bg-white rounded-3xl shadow-sm border-2 group transition-all"
+                style={{ borderColor: `${GREEN}40` }}
+              >
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform" style={{ background: `linear-gradient(135deg, ${GREEN}, #4a9d00)` }}>
+                  <FileText className="size-7 text-white" />
+                </div>
+                <div>
+                  <div className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-0.5">Conditions Générales</div>
+                  <div className="text-lg font-black" style={{ color: GREEN }}>
+                    {park.cgvLabel || 'CGV du parc'}
+                  </div>
+                  <div className="text-xs text-gray-400 mt-0.5">Consulter les règles et tarifs</div>
+                </div>
+                <ArrowRight className="size-5 text-gray-300 ml-auto group-hover:translate-x-1 transition-transform" />
+              </motion.a>
+            )}
           </div>
 
-          {/* ── Formulaire ── */}
+          {/* ── Formulaire (inchangé) ── */}
           <motion.div
             initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
             className="lg:col-span-3 bg-white rounded-3xl shadow-lg overflow-hidden border-2"

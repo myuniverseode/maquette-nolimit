@@ -69,7 +69,8 @@ export function HeroCarousel({
               className="w-full h-full object-cover"
               loading="eager"
             />
-            <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70" />
+            {/* Filtre atténué : opacités plus faibles */}
+            <div className="absolute inset-0" />
           </div>
         ))}
       </div>
@@ -107,23 +108,16 @@ export function HeroCarousel({
         ))}
       </div>
 
-      {/*  Vague avec continuité couleur */}
-     <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none z-10">
-  <svg
-    viewBox="0 0 1440 160"
-    className="w-full h-24 md:h-32"
-    preserveAspectRatio="none"
-  >
+      {/* Vague avec continuité couleur */}
+      <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none z-10">
+        <svg
+          viewBox="0 0 1440 160"
+          className="w-full h-24 md:h-32"
+          preserveAspectRatio="none"
+        >
           <path
-            d="
-               M0,100
-        C200,40 400,140 650,90
-        C900,40 1150,140 1440,80
-        L1440,160
-        L0,160
-        Z
-            "
-            className="fill-brandOrange-100"
+            d="M0,100 C200,40 400,140 650,90 C900,40 1150,140 1440,80 L1440,160 L0,160 Z"
+            className="fill-white"
           />
         </svg>
       </div>
